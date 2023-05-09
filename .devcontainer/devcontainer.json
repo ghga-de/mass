@@ -2,7 +2,7 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.177.0/containers/python-3-postgres
 // Update the VARIANT arg in docker-compose.yml to pick a Python version: 3, 3.8, 3.7, 3.6
 {
-	"name": "my-microservice",
+	"name": "metadata-artifact-search-service",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspace",
@@ -42,9 +42,6 @@
 				"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
 				"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
 				"python.testing.pytestPath": "/usr/local/py-utils/bin/pytest",
-				"python.testing.pytestArgs": [
-					"--profile"
-				],
 				"python.testing.unittestEnabled": false,
 				"python.testing.pytestEnabled": true,
 				"editor.formatOnSave": true,

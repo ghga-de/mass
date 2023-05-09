@@ -36,6 +36,3 @@ class Config(ApiConfigBase, MongoDbConfig, SearchableClassesConfig):
     """Config parameters and their defaults."""
 
     service_name: str = "mass"
-
-
-CONFIG = Config()

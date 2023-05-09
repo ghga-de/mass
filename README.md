@@ -1,7 +1,7 @@
 
 **\# please adapt the links of following badges:**
-![tests](https://github.com/ghga-de/metadata-artifact-search-service/actions/workflows/unit_and_int_tests.yaml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/ghga-de/metadata-artifact-search-service/badge.svg?branch=main)](https://coveralls.io/github/ghga-de/metadata-artifact-search-service?branch=main)
+![tests](https://github.com/ghga-de/mass/actions/workflows/unit_and_int_tests.yaml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/ghga-de/mass/badge.svg?branch=main)](https://coveralls.io/github/ghga-de/mass?branch=main)
 # Metadata Query Service
 
 A service for searching metadata artifacts and filtering results.
