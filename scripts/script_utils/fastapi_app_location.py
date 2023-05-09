@@ -19,5 +19,7 @@
 # flake8: noqa
 # pylint: skip-file
 
-# Please adapt to package structure:
-from my_microservice.api.main import app
+from mass.config import Config
+from mass.main import get_rest_api
+
+app = get_rest_api(config=Config())
