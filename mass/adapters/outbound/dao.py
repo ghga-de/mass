@@ -19,7 +19,7 @@ from hexkit.protocols.dao import DaoFactoryProtocol
 
 from mass.config import SearchableClassesConfig
 from mass.core import models
-from mass.ports.outbound.dao import DaoCollectionPort, ResourceDaoPort
+from mass.ports.outbound.dao import DaoCollectionPort, ResourceDao
 
 
 class DaoNotFoundError(RuntimeError):
@@ -39,7 +39,7 @@ class DaoCollection(DaoCollectionPort):
         config: SearchableClassesConfig,
     ):
         """Initialize the DAO collection with one DAO for each resource class"""
-        resource_daos: dict[str, ResourceDaoPort] = {}
+        resource_daos: dict[str, ResourceDao] = {}
         for name in config.searchable_classes.keys():
             resource_daos[name] = await dao_factory.get_dao(
                 name=name, dto_model=models.Resource, id_field="id_"
@@ -49,12 +49,12 @@ class DaoCollection(DaoCollectionPort):
 
     def __init__(
         self,
-        resource_daos: dict[str, ResourceDaoPort],
+        resource_daos: dict[str, ResourceDao],
     ):
         """Initialize the collection of DAOs"""
         self._resource_daos = resource_daos
 
-    def get_dao(self, *, class_name: str) -> ResourceDaoPort:
+    def get_dao(self, *, class_name: str) -> ResourceDao:
         """returns a dao for the given resource class name
 
         Raises:

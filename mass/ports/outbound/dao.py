@@ -22,14 +22,14 @@ from typing_extensions import TypeAlias
 
 from mass.core.models import Resource
 
-ResourceDaoPort: TypeAlias = DaoNaturalId[Resource]
+ResourceDao: TypeAlias = DaoNaturalId[Resource]
 
 
 class DaoCollectionPort(ABC):
     """Port for a DAO collection object"""
 
     @abstractmethod
-    def get_dao(self, *, class_name: str) -> ResourceDaoPort:
+    def get_dao(self, *, class_name: str) -> ResourceDao:
         """Retrieve a ResourceDaoPort for the specified resource class name
 
         Args:
