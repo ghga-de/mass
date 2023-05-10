@@ -23,14 +23,14 @@ from hexkit.providers.mongodb.testutils import (  # noqa: F401
     mongodb_fixture,
 )
 
-from mass.adapters.outbound.dao import DaoNotFoundError
+from mass.adapters.outbound.aggregator import AggregatorNotFoundError
 from mass.core import models
 from tests.fixtures.joint import JointFixture, joint_fixture  # noqa: F401
 from tests.fixtures.mongo import populated_mongodb_fixture  # noqa: F401
 
 
 @pytest.mark.asyncio
-async def test_basic_query_and_load(joint_fixture: JointFixture):  # noqa: F811
+async def test_basic_query(joint_fixture: JointFixture):  # noqa: F811
     """Make sure we can pull back the documents that are stored as well as load more"""
 
     query_handler = await joint_fixture.container.query_handler()
@@ -55,6 +55,18 @@ async def test_basic_query_and_load(joint_fixture: JointFixture):  # noqa: F811
     )
 
     assert len(results_filtered) == 1
+
+    # make sure limit works
+    results_limited = await query_handler.handle_query(
+        class_name="DatasetEmbedded", query="", filters=[], skip=0, limit=1
+    )
+    assert len(results_limited) == 1
+
+
+@pytest.mark.asyncio
+async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
+    """Test the load function in the query handler"""
+    query_handler = await joint_fixture.container.query_handler()
 
     # get all the documents in the collection
     results_all = await query_handler.handle_query(
@@ -93,16 +105,16 @@ async def test_basic_query_and_load(joint_fixture: JointFixture):  # noqa: F811
     assert validated_resource.id_ == resource.id_
     assert validated_resource.content == resource.content
 
-    # make sure limit works
-    results_limited = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[], skip=0, limit=2
-    )
-    assert len(results_limited) == 2
 
-
-@pytest.mark.skip
+@pytest.mark.asyncio
 async def test_absent_resource(joint_fixture: JointFixture):  # noqa: F811
     """Make sure we get an error when looking for a resource type that doesn't exist"""
     query_handler = await joint_fixture.container.query_handler()
-    with pytest.raises(DaoNotFoundError):
-        await query_handler.handle_query(class_name="does_not_exist")
+    with pytest.raises(AggregatorNotFoundError):
+        await query_handler.handle_query(
+            class_name="does_not_exist",
+            query="",
+            filters=[],
+            skip=0,
+            limit=0,
+        )
