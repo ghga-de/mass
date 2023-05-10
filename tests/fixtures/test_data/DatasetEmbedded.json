@@ -2,7 +2,7 @@
   "items": [
     {
       "category": "stoncher",
-      "field1": "Some information for field1.",
+      "field1": "Alpha",
       "has_items_in_list": [
         {
           "has_flux_opulator": {
@@ -36,7 +36,7 @@
     },
     {
       "category": "stoncher",
-      "field1": "This field1 is different.",
+      "field1": "Beta",
       "has_thing": {
         "has_subthing": {
           "fact": "This subthing is shared by the things embedded in both datasets",

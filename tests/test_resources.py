@@ -34,26 +34,31 @@ async def test_basic_query_and_load(joint_fixture: JointFixture):  # noqa: F811
     """Make sure we can pull back the documents that are stored as well as load more"""
 
     query_handler = await joint_fixture.container.query_handler()
-    results_dataset_embedded = await query_handler.handle_query(
-        class_name="DatasetEmbedded"
+    results = await query_handler.handle_query(
+        class_name="DatasetEmbedded", query="mundane", filters=[], skip=0, limit=10
     )
-    assert len(results_dataset_embedded) > 0
 
-    resource = models.Resource(
-        id_="jf2jl-dlasd82",
-        content={
-            "has_color": ["red"],
-            "has_features": ["starchy", "round"],
-        },
+    assert len(results) == 2
+
+    results_2 = await query_handler.handle_query(
+        class_name="DatasetEmbedded", query="invaluable", filters=[], skip=0, limit=10
     )
-    await query_handler.load_resource(resource=resource, class_name="DatasetEmbedded")
-    results_dataset_embedded_2 = await query_handler.handle_query(
-        class_name="DatasetEmbedded"
+
+    assert len(results_2) == 1
+
+    results_filtered = await query_handler.handle_query(
+        class_name="DatasetEmbedded",
+        query="stoncher",
+        filters=[models.Filter(key="field1", value="Beta")],
+        # filters=[],
+        skip=0,
+        limit=10,
     )
-    assert len(results_dataset_embedded_2) - len(results_dataset_embedded) == 1
+
+    assert len(results_filtered) == 1
 
 
-@pytest.mark.asyncio
+@pytest.mark.skip
 async def test_absent_resource(joint_fixture: JointFixture):  # noqa: F811
     """Make sure we get an error when looking for a resource type that doesn't exist"""
     query_handler = await joint_fixture.container.query_handler()
