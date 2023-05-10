@@ -31,36 +31,74 @@ from tests.fixtures.mongo import populated_mongodb_fixture  # noqa: F401
 
 @pytest.mark.asyncio
 async def test_basic_query(joint_fixture: JointFixture):  # noqa: F811
-    """Make sure we can pull back the documents that are stored as well as load more"""
+    """Make sure we can pull back the documents as expected"""
 
+    # pull back all 3 test documents
     query_handler = await joint_fixture.container.query_handler()
     results = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="mundane", filters=[], skip=0, limit=10
+        class_name="DatasetEmbedded", query="", filters=[], skip=0, limit=0
     )
 
-    assert len(results) == 2
+    assert len(results) == 3
 
-    results_2 = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="invaluable", filters=[], skip=0, limit=10
+    # text search
+    results_text = await query_handler.handle_query(
+        class_name="DatasetEmbedded", query="poolside", filters=[], skip=0, limit=0
     )
 
-    assert len(results_2) == 1
+    assert len(results_text) == 1
+    assert results_text[0].id_ == "1HotelAlpha-id"
 
+    # filters-only search
     results_filtered = await query_handler.handle_query(
         class_name="DatasetEmbedded",
-        query="stoncher",
-        filters=[models.Filter(key="field1", value="Beta")],
+        query="",
+        filters=[models.Filter(key="field1", value="Amsterdam")],
         skip=0,
-        limit=10,
+        limit=0,
     )
 
     assert len(results_filtered) == 1
+    assert results_filtered[0].id_ == "3zoo-id"
+
+    results_multi_filter = await query_handler.handle_query(
+        class_name="DatasetEmbedded",
+        query="",
+        filters=[
+            models.Filter(key="category", value="hotel"),
+            models.Filter(key="has_object.type", value="piano"),
+        ],
+        skip=0,
+        limit=0,
+    )
+
+    assert len(results_filtered) == 1
+    assert results_multi_filter[0].id_ == "1HotelAlpha-id"
 
     # make sure limit works
     results_limited = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[], skip=0, limit=1
+        class_name="DatasetEmbedded", query="", filters=[], skip=0, limit=2
     )
-    assert len(results_limited) == 1
+    assert len(results_limited) == 2
+
+    # make sure skip works
+    results_skip = await query_handler.handle_query(
+        class_name="DatasetEmbedded", query="", filters=[], skip=1, limit=0
+    )
+    assert len(results_skip) == 2
+    assert [x.id_ for x in results_skip] == ["2HotelBeta-id", "3zoo-id"]
+
+    # sanity check - make sure it all works together
+    results_all = await query_handler.handle_query(
+        class_name="DatasetEmbedded",
+        query="hotel",
+        filters=[models.Filter(key="category", value="hotel")],
+        skip=1,
+        limit=1,
+    )
+
+    assert len(results_all) == 1
+    assert results_all[0].id_ == "2HotelBeta-id"
 
 
 @pytest.mark.asyncio
