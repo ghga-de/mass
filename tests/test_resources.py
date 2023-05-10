@@ -89,7 +89,7 @@ async def test_basic_query_and_load(joint_fixture: JointFixture):  # noqa: F811
         limit=0,
     )
     assert len(target_search) == 1
-    validated_resource = models.Resource(**target_search[0])
+    validated_resource = target_search[0]
     assert validated_resource.id_ == resource.id_
     assert validated_resource.content == resource.content
 
