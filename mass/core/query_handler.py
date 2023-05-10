@@ -76,18 +76,6 @@ class QueryHandler(QueryHandlerPort):
                 segment[filter_key] = {"$in": [filter_value]}
         return {"$match": segment}
 
-    def _pipeline_project_stage(self, *, filters: list[models.Filter]) -> JsonObject:
-        """Use projection to remove id field from all documents"""
-        segment: Dict = {}
-        nested_fields = set()
-        if filters:
-            filter_fields = [item.key for item in filters]
-            nested_fields.update(self._get_nested_fields(fields=filter_fields))
-        segment["_id"] = 0
-        for top_level_field, _ in nested_fields:
-            segment[f"{top_level_field}._id"] = 0
-        return {"$project": segment}
-
     def _build_pipeline(
         self, *, query: str, filters: list[models.Filter], skip: int, limit: int
     ) -> list[JsonObject]:
@@ -101,7 +89,6 @@ class QueryHandler(QueryHandlerPort):
 
         if filters:
             pipeline.append(self._pipeline_match_filters_stage(filters=filters))
-            pipeline.append(self._pipeline_project_stage(filters=filters))
 
         pipeline.append({"$skip": skip})
         if limit > 0:
