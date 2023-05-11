@@ -14,14 +14,12 @@
 # limitations under the License.
 #
 """Contains concrete implementation of the Aggregator and its Factory"""
-from typing import cast
 
 from hexkit.custom_types import JsonObject
 from hexkit.providers.mongodb.provider import MongoDbConfig
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from mass.config import SearchableClassesConfig
-from mass.core import models
 from mass.ports.outbound.aggregator import AggregatorCollectionPort, AggregatorPort
 
 
@@ -32,15 +30,8 @@ class Aggregator(AggregatorPort):
         """initialize with a MongoDB collection"""
         self._collection = collection
 
-    def _document_to_resource(self, document: JsonObject):
-        """Convert a document to a pydantic model"""
-        id_ = str(document["_id"])
-        content = cast(JsonObject, document["content"])
-        return models.Resource(id_=id_, content=content)
-
-    async def aggregate(self, *, pipeline: list[JsonObject]) -> list:
-        results = await self._collection.aggregate(pipeline=pipeline).to_list(None)
-        return [self._document_to_resource(result) for result in results]
+    async def aggregate(self, *, pipeline: list[JsonObject]) -> list[JsonObject]:
+        return await self._collection.aggregate(pipeline=pipeline).to_list(None)
 
 
 class AggregatorFactory:
@@ -54,7 +45,7 @@ class AggregatorFactory:
         )
         self._db = self._client[self._config.db_name]
 
-    def get_aggregator(self, *, name: str):
+    def get_aggregator(self, *, name: str) -> Aggregator:
         """Returns an aggregator with a collection set up"""
         collection = self._db[name]
         return Aggregator(collection=collection)

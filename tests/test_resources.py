@@ -36,26 +36,34 @@ async def test_basic_query(joint_fixture: JointFixture):  # noqa: F811
     # pull back all 3 test documents
     query_handler = await joint_fixture.container.query_handler()
     results = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[], skip=0, limit=0
+        class_name="DatasetEmbedded", query="", filters=[]
     )
 
     assert len(results) == 3
 
-    # text search
+
+@pytest.mark.asyncio
+async def test_text_search(joint_fixture: JointFixture):  # noqa: F811
+    """Test basic text search"""
+
+    query_handler = await joint_fixture.container.query_handler()
     results_text = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="poolside", filters=[], skip=0, limit=0
+        class_name="DatasetEmbedded", query="poolside", filters=[]
     )
 
     assert len(results_text) == 1
     assert results_text[0].id_ == "1HotelAlpha-id"
 
-    # filters-only search
+
+@pytest.mark.asyncio
+async def test_filters_work(joint_fixture: JointFixture):  # noqa: F811
+    """Test a query with filters selected but no query string"""
+
+    query_handler = await joint_fixture.container.query_handler()
     results_filtered = await query_handler.handle_query(
         class_name="DatasetEmbedded",
         query="",
         filters=[models.Filter(key="field1", value="Amsterdam")],
-        skip=0,
-        limit=0,
     )
 
     assert len(results_filtered) == 1
@@ -68,27 +76,37 @@ async def test_basic_query(joint_fixture: JointFixture):  # noqa: F811
             models.Filter(key="category", value="hotel"),
             models.Filter(key="has_object.type", value="piano"),
         ],
-        skip=0,
-        limit=0,
     )
 
     assert len(results_filtered) == 1
     assert results_multi_filter[0].id_ == "1HotelAlpha-id"
 
-    # make sure limit works
+
+@pytest.mark.asyncio
+async def test_limit_parameter(joint_fixture: JointFixture):  # noqa: F811
+    """Test that the limit parameter works"""
+    query_handler = await joint_fixture.container.query_handler()
     results_limited = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[], skip=0, limit=2
+        class_name="DatasetEmbedded", query="", filters=[], limit=2
     )
     assert len(results_limited) == 2
 
-    # make sure skip works
+
+@pytest.mark.asyncio
+async def test_skip_parameter(joint_fixture: JointFixture):  # noqa: F811
+    """Test that the skip parameter works"""
+    query_handler = await joint_fixture.container.query_handler()
     results_skip = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[], skip=1, limit=0
+        class_name="DatasetEmbedded", query="", filters=[], skip=1
     )
     assert len(results_skip) == 2
     assert [x.id_ for x in results_skip] == ["2HotelBeta-id", "3zoo-id"]
 
-    # sanity check - make sure it all works together
+
+@pytest.mark.asyncio
+async def test_all_parameters(joint_fixture: JointFixture):  # noqa: F811
+    """sanity check - make sure it all works together"""
+    query_handler = await joint_fixture.container.query_handler()
     results_all = await query_handler.handle_query(
         class_name="DatasetEmbedded",
         query="hotel",
@@ -108,11 +126,7 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
 
     # get all the documents in the collection
     results_all = await query_handler.handle_query(
-        class_name="DatasetEmbedded",
-        query="",
-        filters=[],
-        skip=0,
-        limit=0,
+        class_name="DatasetEmbedded", query="", filters=[]
     )
 
     # define and load a new resource
@@ -127,7 +141,7 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
 
     # make sure the new resource is added to the collection
     results_after_load = await query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[], skip=0, limit=0
+        class_name="DatasetEmbedded", query="", filters=[]
     )
     assert len(results_after_load) - len(results_all) == 1
 

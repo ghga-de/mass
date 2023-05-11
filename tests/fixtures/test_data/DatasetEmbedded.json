@@ -37,6 +37,10 @@
         "id": "ZooAnimal",
         "type": "giraffe"
       },
+      "has_object": {
+        "id": "zoo-object",
+        "type": "concessions stand"
+      },
       "id": "3zoo-id"
     }
   ]
