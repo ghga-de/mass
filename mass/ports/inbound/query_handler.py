@@ -20,6 +20,14 @@ from abc import ABC, abstractmethod
 from hexkit.custom_types import JsonObject
 
 
+class ClassNotConfiguredError(RuntimeError):
+    """Raised when searching for class_name that isn't configured"""
+
+    def __init__(self, class_name: str):
+        message = f"Class with name '{class_name}' not configured."
+        super().__init__(message)
+
+
 class QueryHandlerPort(ABC):
     """Port for the query handler"""
 
@@ -31,7 +39,7 @@ class QueryHandlerPort(ABC):
         query: str,
         filters: list[JsonObject],
         skip: int,
-        limit: int
+        limit: int,
     ):
         """Processes a query"""
         ...
