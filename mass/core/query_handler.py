@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 """Contains implementation of a QueryHandler to field queries on metadata"""
+from typing import Optional
 
 from hexkit.custom_types import JsonObject
 
@@ -48,7 +49,7 @@ class QueryHandler(QueryHandlerPort):
         query: str,
         filters: list[models.Filter],
         skip: int = 0,
-        limit: int = 0,  # 0 means unlimited
+        limit: Optional[int] = None,
     ) -> list[models.Resource]:
         """Return resources that match query"""
         pipeline = utils.build_pipeline(

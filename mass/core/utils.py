@@ -16,7 +16,7 @@
 
 """Utility functions for building the aggregation pipeline used by query handler"""
 from collections import defaultdict
-from typing import cast
+from typing import Optional, cast
 
 from hexkit.custom_types import JsonObject
 
@@ -41,7 +41,11 @@ def pipeline_match_filters_stage(*, filters: list[models.Filter]) -> JsonObject:
 
 
 def build_pipeline(
-    *, query: str, filters: list[models.Filter], skip: int, limit: int
+    *,
+    query: str,
+    filters: list[models.Filter],
+    skip: int = 0,
+    limit: Optional[int] = None
 ) -> list[JsonObject]:
     """Build aggregation pipeline based on query"""
     pipeline: list[JsonObject] = []
@@ -55,7 +59,7 @@ def build_pipeline(
         pipeline.append(pipeline_match_filters_stage(filters=filters))
 
     pipeline.append({"$skip": skip})
-    if limit > 0:
+    if limit:
         pipeline.append({"$limit": limit})
 
     return pipeline
