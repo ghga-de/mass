@@ -39,7 +39,7 @@ async def test_basic_query(joint_fixture: JointFixture):  # noqa: F811
         class_name="DatasetEmbedded", query="", filters=[]
     )
 
-    assert len(results) == 3
+    assert results.count == 3
 
 
 @pytest.mark.asyncio
@@ -51,8 +51,8 @@ async def test_text_search(joint_fixture: JointFixture):  # noqa: F811
         class_name="DatasetEmbedded", query="poolside", filters=[]
     )
 
-    assert len(results_text) == 1
-    assert results_text[0].id_ == "1HotelAlpha-id"
+    assert results_text.count == 1
+    assert results_text.hits[0].id_ == "1HotelAlpha-id"
 
 
 @pytest.mark.asyncio
@@ -66,8 +66,8 @@ async def test_filters_work(joint_fixture: JointFixture):  # noqa: F811
         filters=[models.Filter(key="field1", value="Amsterdam")],
     )
 
-    assert len(results_filtered) == 1
-    assert results_filtered[0].id_ == "3zoo-id"
+    assert results_filtered.count == 1
+    assert results_filtered.hits[0].id_ == "3zoo-id"
 
     results_multi_filter = await query_handler.handle_query(
         class_name="DatasetEmbedded",
@@ -78,8 +78,8 @@ async def test_filters_work(joint_fixture: JointFixture):  # noqa: F811
         ],
     )
 
-    assert len(results_filtered) == 1
-    assert results_multi_filter[0].id_ == "1HotelAlpha-id"
+    assert results_multi_filter.count == 1
+    assert results_multi_filter.hits[0].id_ == "1HotelAlpha-id"
 
 
 @pytest.mark.asyncio
@@ -89,7 +89,7 @@ async def test_limit_parameter(joint_fixture: JointFixture):  # noqa: F811
     results_limited = await query_handler.handle_query(
         class_name="DatasetEmbedded", query="", filters=[], limit=2
     )
-    assert len(results_limited) == 2
+    assert results_limited.count == 2
 
 
 @pytest.mark.asyncio
@@ -99,8 +99,8 @@ async def test_skip_parameter(joint_fixture: JointFixture):  # noqa: F811
     results_skip = await query_handler.handle_query(
         class_name="DatasetEmbedded", query="", filters=[], skip=1
     )
-    assert len(results_skip) == 2
-    assert [x.id_ for x in results_skip] == ["2HotelBeta-id", "3zoo-id"]
+    assert results_skip.count == 2
+    assert [x.id_ for x in results_skip.hits] == ["2HotelBeta-id", "3zoo-id"]
 
 
 @pytest.mark.asyncio
@@ -115,8 +115,8 @@ async def test_all_parameters(joint_fixture: JointFixture):  # noqa: F811
         limit=1,
     )
 
-    assert len(results_all) == 1
-    assert results_all[0].id_ == "2HotelBeta-id"
+    assert results_all.count == 1
+    assert results_all.hits[0].id_ == "2HotelBeta-id"
 
 
 @pytest.mark.asyncio
@@ -132,9 +132,7 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
     # define and load a new resource
     resource = models.Resource(
         id_="jf2jl-dlasd82",
-        content={
-            "has_feature": {"feature_name": "added_resource", "id": "98u44-f4jo4"}
-        },
+        content={"has_object": {"type": "added_resource", "id": "98u44-f4jo4"}},
     )
 
     await query_handler.load_resource(resource=resource, class_name="DatasetEmbedded")
@@ -143,7 +141,7 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
     results_after_load = await query_handler.handle_query(
         class_name="DatasetEmbedded", query="", filters=[]
     )
-    assert len(results_after_load) - len(results_all) == 1
+    assert results_after_load.count - results_all.count == 1
 
     target_search = await query_handler.handle_query(
         class_name="DatasetEmbedded",
@@ -152,8 +150,8 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
         skip=0,
         limit=0,
     )
-    assert len(target_search) == 1
-    validated_resource = target_search[0]
+    assert target_search.count == 1
+    validated_resource = target_search.hits[0]
     assert validated_resource.id_ == resource.id_
     assert validated_resource.content == resource.content
 
@@ -164,9 +162,5 @@ async def test_absent_resource(joint_fixture: JointFixture):  # noqa: F811
     query_handler = await joint_fixture.container.query_handler()
     with pytest.raises(AggregatorNotFoundError):
         await query_handler.handle_query(
-            class_name="does_not_exist",
-            query="",
-            filters=[],
-            skip=0,
-            limit=0,
+            class_name="does_not_exist", query="", filters=[]
         )

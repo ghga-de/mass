@@ -18,6 +18,7 @@ from typing import Optional
 
 from hexkit.custom_types import JsonObject
 
+from mass.config import SearchableClassesConfig
 from mass.core import models, utils
 from mass.ports.inbound.query_handler import QueryHandlerPort
 from mass.ports.outbound.aggregator import AggregatorCollectionPort
@@ -30,10 +31,12 @@ class QueryHandler(QueryHandlerPort):
     def __init__(
         self,
         *,
+        config: SearchableClassesConfig,
         aggregator_collection: AggregatorCollectionPort,
         dao_collection: DaoCollectionPort,
     ):
         """Initialize the query handler with resource daos/aggregators"""
+        self._config = config
         self._aggregator_collection = aggregator_collection
         self._dao_collection = dao_collection
 
@@ -50,16 +53,20 @@ class QueryHandler(QueryHandlerPort):
         filters: list[models.Filter],
         skip: int = 0,
         limit: Optional[int] = None,
-    ) -> list[models.Resource]:
+    ) -> models.QueryResults:
         """Return resources that match query"""
         pipeline = utils.build_pipeline(
             query=query, filters=filters, skip=skip, limit=limit
         )
+
+        # run the aggregation pipeline and interpret the results
         aggregator = self._aggregator_collection.get_aggregator(class_name=class_name)
         aggregator_results: list[JsonObject] = await aggregator.aggregate(
             pipeline=pipeline
         )
-        query_results: list[models.Resource] = [
+
+        hits: list[models.Resource] = [
             utils.document_to_resource(document=item) for item in aggregator_results
         ]
+        query_results = models.QueryResults(hits=hits, count=len(hits))
         return query_results
