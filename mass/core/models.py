@@ -42,3 +42,28 @@ class Filter(BaseModel):
 
     key: str = Field(..., description="The field to filter")
     value: str = Field(..., description="The value the field must match")
+
+
+class FacetOptions(BaseModel):
+    """Represents the facet options"""
+
+    option: str = Field(..., description="The value of the facet option")
+    count: int = Field(default=1, description="The number of occurrences of the option")
+
+
+class Facet(BaseModel):
+    """Represents a facet"""
+
+    key: str = Field(..., description="The raw facet key, such as study.type")
+    name: str = Field(default="", description="The user-friendly name for the facet")
+    options: list[FacetOptions] = Field(
+        ..., description="The list of options for the facet"
+    )
+
+
+class QueryResults(BaseModel):
+    """Contains the facets, hit count, and hits"""
+
+    facets: list[Facet] = Field(default=[], description="Contains the faceted fields")
+    count: int = Field(default=0, description="The number of results found")
+    hits: list[Resource] = Field(default=[], description="The search results")
