@@ -25,6 +25,7 @@ from hexkit.providers.mongodb.testutils import (  # noqa: F401
 
 from mass.core import models
 from mass.ports.inbound.query_handler import ClassNotConfiguredError
+from tests.fixtures.config import get_config
 from tests.fixtures.joint import JointFixture, joint_fixture  # noqa: F401
 from tests.fixtures.mongo import populated_mongodb_fixture  # noqa: F401
 
@@ -91,9 +92,11 @@ async def test_facets_returned(joint_fixture: JointFixture):  # noqa: F811
         query="",
         filters=[models.Filter(key="category", value="hotel")],
     )
+    config = get_config()
+    facets = config.searchable_classes["DatasetEmbedded"].facetable_properties
 
     for facet in results_faceted.facets:
-        assert facet.key in {"category", "field1", "has_object__type"}
+        assert facet.key in facets
         if facet.key == "category":
             assert len(facet.options) == 1
         elif facet.key == "field1":

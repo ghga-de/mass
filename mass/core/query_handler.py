@@ -79,4 +79,9 @@ class QueryHandler(QueryHandlerPort):
             pipeline=pipeline
         )
         query_results = models.QueryResults(**aggregator_results[0])
+
+        # replace __ with . in facet keys
+        for i, facet in enumerate(query_results.facets):
+            facet.key = facet.key.replace("__", ".")
+            query_results.facets[i] = facet
         return query_results
