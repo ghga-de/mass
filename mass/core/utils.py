@@ -16,7 +16,7 @@
 
 """Utility functions for building the aggregation pipeline used by query handler"""
 from collections import defaultdict
-from typing import Optional, cast
+from typing import Any, Optional
 
 from hexkit.custom_types import JsonObject
 
@@ -29,6 +29,23 @@ def pipeline_match_text_search(*, query: str) -> JsonObject:
     return {"$match": text_search}
 
 
+def replace_periods(*, field_name: str) -> str:
+    """convert field names with . to __ e.g.: obj.type -> obj__type"""
+    return field_name.replace(".", "__")
+
+
+def args_for_getfield(*, root_object_name: str, field_name: str) -> tuple[str, str]:
+    """fieldpath names can't have '.', so specify any nested fields with $getField"""
+    prefix = f"${root_object_name}"
+    specified_field = field_name
+    if "." in field_name:
+        pieces = field_name.split(".")
+        specified_field = pieces[-1]
+        prefix += "." + ".".join(pieces[:-1])
+
+    return (prefix, specified_field)
+
+
 def pipeline_match_filters_stage(*, filters: list[models.Filter]) -> JsonObject:
     """Build segment of pipeline to apply search filters"""
 
@@ -37,36 +54,103 @@ def pipeline_match_filters_stage(*, filters: list[models.Filter]) -> JsonObject:
         filter_key = "content." + str(item.key)
         filter_value = item.value
         segment[filter_key]["$in"].append(filter_value)
+
     return {"$match": segment}
+
+
+def pipeline_apply_facets(
+    *, facet_fields: list[str], skip: int, limit: Optional[int] = None
+):
+    """Uses a list of facetable property names to build the subquery for faceting"""
+    segment: dict[str, list[JsonObject]] = {}
+
+    for field in facet_fields:
+        prefix, specified_field = args_for_getfield(
+            root_object_name="content", field_name=field
+        )
+
+        segment[replace_periods(field_name=field)] = [
+            {
+                "$group": {
+                    "_id": {"$getField": {"field": specified_field, "input": prefix}},
+                    "count": {"$sum": 1},
+                }
+            }
+        ]
+
+    # this is the total number of hits, but pagination can mean only a few are returned
+    segment["count"] = [{"$count": "total"}]
+
+    # sort by ID, then rename the ID field to id_ to match our model
+    segment["hits"] = [
+        {"$sort": {"_id": 1}},
+        {"$addFields": {"id_": "$_id"}},
+        {"$unset": "_id"},
+    ]
+
+    # apply skip and limit for pagination
+    if skip > 0:
+        segment["hits"].append({"$skip": skip})
+
+    if limit:
+        segment["hits"].append({"$limit": limit})
+
+    return {"$facet": segment}
+
+
+def pipeline_project(*, facet_fields: list[str]) -> JsonObject:
+    """Reshape the query so the facets are contained in a top level object"""
+    segment: dict[str, Any] = {"hits": 1, "facets": []}
+    segment["count"] = {"$arrayElemAt": ["$count.total", 0]}
+
+    # add a segment for each facet to summarize the options
+    for facet_name in facet_fields:
+        facet_name = facet_name.replace(".", "__")
+        segment["facets"].append(
+            {
+                "key": facet_name,
+                "options": {
+                    "$map": {
+                        "input": f"${facet_name}",
+                        "as": "temp",
+                        "in": {"option": "$$temp._id", "count": "$$temp.count"},
+                    }
+                },
+            }
+        )
+    return {"$project": segment}
 
 
 def build_pipeline(
     *,
     query: str,
     filters: list[models.Filter],
+    facet_fields: list[str],
     skip: int = 0,
-    limit: Optional[int] = None
+    limit: Optional[int] = None,
 ) -> list[JsonObject]:
     """Build aggregation pipeline based on query"""
     pipeline: list[JsonObject] = []
     query = query.strip()
+
+    # perform text search
     if query:
         pipeline.append(pipeline_match_text_search(query=query))
 
+    # sort initial results
     pipeline.append({"$sort": {"_id": 1}})
 
+    # apply filters
     if filters:
         pipeline.append(pipeline_match_filters_stage(filters=filters))
 
-    pipeline.append({"$skip": skip})
-    if limit:
-        pipeline.append({"$limit": limit})
+    # define facets from preliminary results and reshape data
+    if facet_fields:
+        pipeline.append(
+            pipeline_apply_facets(facet_fields=facet_fields, skip=skip, limit=limit)
+        )
+
+    # transform data one more time to match models
+    pipeline.append(pipeline_project(facet_fields=facet_fields))
 
     return pipeline
-
-
-def document_to_resource(*, document: JsonObject) -> models.Resource:
-    """Convert a document to a pydantic model"""
-    id_ = str(document["_id"])
-    content = cast(JsonObject, document["content"])
-    return models.Resource(id_=id_, content=content)

@@ -20,7 +20,7 @@ from hexkit.custom_types import JsonObject
 
 from mass.config import SearchableClassesConfig
 from mass.core import models, utils
-from mass.ports.inbound.query_handler import QueryHandlerPort
+from mass.ports.inbound.query_handler import ClassNotConfiguredError, QueryHandlerPort
 from mass.ports.outbound.aggregator import AggregatorCollectionPort
 from mass.ports.outbound.dao import DaoCollectionPort
 
@@ -55,18 +55,28 @@ class QueryHandler(QueryHandlerPort):
         limit: Optional[int] = None,
     ) -> models.QueryResults:
         """Return resources that match query"""
+
+        # get configured facet fields for given resource class
+        try:
+            facet_fields = self._config.searchable_classes[
+                class_name
+            ].facetable_properties
+        except KeyError as err:
+            raise ClassNotConfiguredError(class_name=class_name) from err
+
+        # build the aggregation pipeline
         pipeline = utils.build_pipeline(
-            query=query, filters=filters, skip=skip, limit=limit
+            query=query,
+            filters=filters,
+            facet_fields=facet_fields,
+            skip=skip,
+            limit=limit,
         )
 
-        # run the aggregation pipeline and interpret the results
+        # run the aggregation. Results will have {facets, count, hits} format
         aggregator = self._aggregator_collection.get_aggregator(class_name=class_name)
         aggregator_results: list[JsonObject] = await aggregator.aggregate(
             pipeline=pipeline
         )
-
-        hits: list[models.Resource] = [
-            utils.document_to_resource(document=item) for item in aggregator_results
-        ]
-        query_results = models.QueryResults(hits=hits, count=len(hits))
+        query_results = models.QueryResults(**aggregator_results[0])
         return query_results

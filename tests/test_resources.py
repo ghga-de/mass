@@ -23,8 +23,8 @@ from hexkit.providers.mongodb.testutils import (  # noqa: F401
     mongodb_fixture,
 )
 
-from mass.adapters.outbound.aggregator import AggregatorNotFoundError
 from mass.core import models
+from mass.ports.inbound.query_handler import ClassNotConfiguredError
 from tests.fixtures.joint import JointFixture, joint_fixture  # noqa: F401
 from tests.fixtures.mongo import populated_mongodb_fixture  # noqa: F401
 
@@ -83,13 +83,33 @@ async def test_filters_work(joint_fixture: JointFixture):  # noqa: F811
 
 
 @pytest.mark.asyncio
+async def test_facets_returned(joint_fixture: JointFixture):  # noqa: F811
+    """Verify that facet fields are returned correctly"""
+    query_handler = await joint_fixture.container.query_handler()
+    results_faceted = await query_handler.handle_query(
+        class_name="DatasetEmbedded",
+        query="",
+        filters=[models.Filter(key="category", value="hotel")],
+    )
+
+    for facet in results_faceted.facets:
+        assert facet.key in {"category", "field1", "has_object__type"}
+        if facet.key == "category":
+            assert len(facet.options) == 1
+        elif facet.key == "field1":
+            assert len(facet.options) == 2
+        else:
+            assert len(facet.options) == 2
+
+
+@pytest.mark.asyncio
 async def test_limit_parameter(joint_fixture: JointFixture):  # noqa: F811
     """Test that the limit parameter works"""
     query_handler = await joint_fixture.container.query_handler()
     results_limited = await query_handler.handle_query(
         class_name="DatasetEmbedded", query="", filters=[], limit=2
     )
-    assert results_limited.count == 2
+    assert len(results_limited.hits) == 2
 
 
 @pytest.mark.asyncio
@@ -99,7 +119,7 @@ async def test_skip_parameter(joint_fixture: JointFixture):  # noqa: F811
     results_skip = await query_handler.handle_query(
         class_name="DatasetEmbedded", query="", filters=[], skip=1
     )
-    assert results_skip.count == 2
+    assert len(results_skip.hits) == 2
     assert [x.id_ for x in results_skip.hits] == ["2HotelBeta-id", "3zoo-id"]
 
 
@@ -115,7 +135,7 @@ async def test_all_parameters(joint_fixture: JointFixture):  # noqa: F811
         limit=1,
     )
 
-    assert results_all.count == 1
+    assert len(results_all.hits) == 1
     assert results_all.hits[0].id_ == "2HotelBeta-id"
 
 
@@ -131,8 +151,8 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
 
     # define and load a new resource
     resource = models.Resource(
-        id_="jf2jl-dlasd82",
-        content={"has_object": {"type": "added_resource", "id": "98u44-f4jo4"}},
+        id_="added-resource",
+        content={"has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"}},
     )
 
     await query_handler.load_resource(resource=resource, class_name="DatasetEmbedded")
@@ -145,12 +165,12 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
 
     target_search = await query_handler.handle_query(
         class_name="DatasetEmbedded",
-        query="added_resource",
+        query="added-resource",
         filters=[],
         skip=0,
         limit=0,
     )
-    assert target_search.count == 1
+    assert len(target_search.hits) == 1
     validated_resource = target_search.hits[0]
     assert validated_resource.id_ == resource.id_
     assert validated_resource.content == resource.content
@@ -160,7 +180,7 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
 async def test_absent_resource(joint_fixture: JointFixture):  # noqa: F811
     """Make sure we get an error when looking for a resource type that doesn't exist"""
     query_handler = await joint_fixture.container.query_handler()
-    with pytest.raises(AggregatorNotFoundError):
+    with pytest.raises(ClassNotConfiguredError):
         await query_handler.handle_query(
             class_name="does_not_exist", query="", filters=[]
         )

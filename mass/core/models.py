@@ -14,6 +14,7 @@
 # limitations under the License.
 
 """Defines dataclasses for holding business-logic data"""
+from typing import Union
 
 from hexkit.custom_types import JsonObject
 from pydantic import BaseModel, Field
@@ -47,7 +48,7 @@ class Filter(BaseModel):
 class FacetOptions(BaseModel):
     """Represents the facet options"""
 
-    option: str = Field(..., description="The value of the facet option")
+    option: Union[str, None] = Field(..., description="The value of the facet option")
     count: int = Field(default=1, description="The number of occurrences of the option")
 
 
