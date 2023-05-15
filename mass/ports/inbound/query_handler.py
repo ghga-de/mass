@@ -16,8 +16,9 @@
 """Contains the port for a query handler"""
 
 from abc import ABC, abstractmethod
+from typing import Optional
 
-from hexkit.custom_types import JsonObject
+from mass.core import models
 
 
 class ClassNotConfiguredError(RuntimeError):
@@ -37,9 +38,9 @@ class QueryHandlerPort(ABC):
         *,
         class_name: str,
         query: str,
-        filters: list[JsonObject],
+        filters: list[models.Filter],
         skip: int,
-        limit: int,
+        limit: Optional[int] = None,
     ):
         """Processes a query"""
         ...
