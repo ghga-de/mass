@@ -19,9 +19,13 @@ from typing import Optional
 from hexkit.custom_types import JsonObject
 
 from mass.config import SearchableClassesConfig
-from mass.core import models, utils
-from mass.ports.inbound.query_handler import ClassNotConfiguredError, QueryHandlerPort
-from mass.ports.outbound.aggregator import AggregatorCollectionPort
+from mass.core import models
+from mass.ports.inbound.query_handler import (
+    ClassNotConfiguredError,
+    QueryHandlerPort,
+    SearchError,
+)
+from mass.ports.outbound.aggregator import AggregationError, AggregatorCollectionPort
 from mass.ports.outbound.dao import DaoCollectionPort
 
 
@@ -64,24 +68,19 @@ class QueryHandler(QueryHandlerPort):
         except KeyError as err:
             raise ClassNotConfiguredError(class_name=class_name) from err
 
-        # build the aggregation pipeline
-        pipeline = utils.build_pipeline(
-            query=query,
-            filters=filters,
-            facet_fields=facet_fields,
-            skip=skip,
-            limit=limit,
-        )
-
         # run the aggregation. Results will have {facets, count, hits} format
         aggregator = self._aggregator_collection.get_aggregator(class_name=class_name)
-        aggregator_results: list[JsonObject] = await aggregator.aggregate(
-            pipeline=pipeline
-        )
-        query_results = models.QueryResults(**aggregator_results[0])
+        try:
+            aggregator_results: JsonObject = await aggregator.aggregate(
+                query=query,
+                filters=filters,
+                facet_fields=facet_fields,
+                skip=skip,
+                limit=limit,
+            )
+        except AggregationError as exc:
+            raise SearchError() from exc
 
-        # replace __ with . in facet keys
-        for i, facet in enumerate(query_results.facets):
-            facet.key = facet.key.replace("__", ".")
-            query_results.facets[i] = facet
+        query_results = models.QueryResults(**aggregator_results)
+
         return query_results

@@ -29,6 +29,15 @@ class ClassNotConfiguredError(RuntimeError):
         super().__init__(message)
 
 
+class SearchError(RuntimeError):
+    """Raised when there is a problem searching with the query parameters."""
+
+    def __init__(self):
+        super().__init__(
+            "Error executing search. Possibly a problem with the supplied parameters."
+        )
+
+
 class QueryHandlerPort(ABC):
     """Port for the query handler"""
 

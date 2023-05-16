@@ -24,7 +24,7 @@ from hexkit.providers.mongodb.testutils import (  # noqa: F401
 )
 
 from mass.core import models
-from mass.ports.inbound.query_handler import ClassNotConfiguredError
+from mass.ports.inbound.query_handler import ClassNotConfiguredError, SearchError
 from tests.fixtures.config import get_config
 from tests.fixtures.joint import JointFixture, joint_fixture  # noqa: F401
 from tests.fixtures.mongo import populated_mongodb_fixture  # noqa: F401
@@ -155,7 +155,11 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
     # define and load a new resource
     resource = models.Resource(
         id_="added-resource",
-        content={"has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"}},
+        content={
+            "has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
+            "field1": "something",
+            "category": "test object",
+        },
     )
 
     await query_handler.load_resource(resource=resource, class_name="DatasetEmbedded")
@@ -177,6 +181,29 @@ async def test_resource_load(joint_fixture: JointFixture):  # noqa: F811
     validated_resource = target_search.hits[0]
     assert validated_resource.id_ == resource.id_
     assert validated_resource.content == resource.content
+
+
+@pytest.mark.asyncio
+async def test_error_from_malformed_resource(joint_fixture: JointFixture):  # noqa: F811
+    """Make sure we get an error when the DB has malformed content, since that has to be fixed"""
+    query_handler = await joint_fixture.container.query_handler()
+
+    # define and load a new resource without all the required facets
+    resource = models.Resource(
+        id_="added-resource",
+        content={
+            "has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
+            "field3": "something",  # expects field1 to exist
+            "category": "test object",
+        },
+    )
+
+    await query_handler.load_resource(resource=resource, class_name="DatasetEmbedded")
+
+    with pytest.raises(SearchError):
+        await query_handler.handle_query(
+            class_name="DatasetEmbedded", query="", filters=[]
+        )
 
 
 @pytest.mark.asyncio
