@@ -75,7 +75,8 @@ def pipeline_apply_facets(
                     "_id": {"$getField": {"field": specified_field, "input": prefix}},
                     "count": {"$sum": 1},
                 }
-            }
+            },
+            {"$sort": {"count": -1}},  # sort by descending order
         ]
 
     # this is the total number of hits, but pagination can mean only a few are returned
@@ -110,10 +111,12 @@ def pipeline_project(*, facet_fields: list[str]) -> JsonObject:
             {
                 "key": facet_name,
                 "options": {
-                    "$map": {
-                        "input": f"${facet_name}",
-                        "as": "temp",
-                        "in": {"option": "$$temp._id", "count": "$$temp.count"},
+                    "$arrayToObject": {
+                        "$map": {
+                            "input": f"${facet_name}",
+                            "as": "temp",
+                            "in": {"k": "$$temp._id", "v": "$$temp.count"},
+                        }
                     }
                 },
             }

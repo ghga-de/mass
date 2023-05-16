@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """Defines dataclasses for holding business-logic data"""
-from typing import Union
+from collections import OrderedDict
 
 from hexkit.custom_types import JsonObject
 from pydantic import BaseModel, Field
@@ -45,20 +45,13 @@ class Filter(BaseModel):
     value: str = Field(..., description="The value the field must match")
 
 
-class FacetOptions(BaseModel):
-    """Represents the facet options"""
-
-    option: Union[str, None] = Field(..., description="The value of the facet option")
-    count: int = Field(default=1, description="The number of occurrences of the option")
-
-
 class Facet(BaseModel):
     """Represents a facet"""
 
     key: str = Field(..., description="The raw facet key, such as study.type")
     name: str = Field(default="", description="The user-friendly name for the facet")
-    options: list[FacetOptions] = Field(
-        ..., description="The list of options for the facet"
+    options: OrderedDict[str, int] = Field(
+        ..., description="The options for the facet. Keys are options, values are count"
     )
 
 
