@@ -92,6 +92,7 @@ async def test_facets_returned(joint_fixture: JointFixture):  # noqa: F811
         query="",
         filters=[models.Filter(key="category", value="hotel")],
     )
+
     config = get_config()
     facets = config.searchable_classes["DatasetEmbedded"].facetable_properties
 
@@ -99,10 +100,15 @@ async def test_facets_returned(joint_fixture: JointFixture):  # noqa: F811
         assert facet.key in facets
         if facet.key == "category":
             assert len(facet.options) == 1
+            assert facet.options["hotel"] == 2
         elif facet.key == "field1":
             assert len(facet.options) == 2
+            assert facet.options["Miami"] == 1
+            assert facet.options["Denver"] == 1
         else:
             assert len(facet.options) == 2
+            assert facet.options["piano"] == 1
+            assert facet.options["kitchen"] == 1
 
 
 @pytest.mark.asyncio
