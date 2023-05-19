@@ -76,7 +76,9 @@ async def search(
         )
     except ClassNotConfiguredError as err:
         raise HTTPException(
-            status_code=422, detail="The specified class name is invalid"
+            status_code=422,
+            detail="The specified class name is invalid. See "
+            + "/rpc/search-options for a list of valid class names.",
         ) from err
     except SearchError as err:
         raise HTTPException(
