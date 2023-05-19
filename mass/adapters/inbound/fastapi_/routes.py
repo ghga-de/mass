@@ -43,7 +43,12 @@ router = APIRouter()
 async def search_options(
     config: Config = Depends(Provide[Container.config]),
 ) -> dict[str, models.SearchableClass]:
-    """Returns the configured searchable classes"""
+    """Returns the configured searchable classes. This describes which resource classes
+    are accounted for in the system, as well as their facetable properties. The facetable
+    properties represent specific data properties that will be aggregated alongside the
+    search hits for further search refinement. They contain a key, which is used by the
+    system, and a name, which is more user-friendly.
+    """
 
     return config.searchable_classes
 
