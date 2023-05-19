@@ -24,6 +24,22 @@ components:
       - options
       title: Facet
       type: object
+    FacetLabel:
+      description: Contains the key and corresponding user-friendly name for a facet
+      properties:
+        key:
+          description: The raw facet key, such as study.type
+          title: Key
+          type: string
+        name:
+          default: ''
+          description: The user-friendly name for the facet
+          title: Name
+          type: string
+      required:
+      - key
+      title: FacetLabel
+      type: object
     Filter:
       description: Represents a filter used to refine results
       properties:
@@ -131,6 +147,24 @@ components:
       - class_name
       title: SearchParameters
       type: object
+    SearchableClass:
+      description: Represents a searchable artifact or resource type
+      properties:
+        description:
+          description: A brief description of the resource type
+          title: Description
+          type: string
+        facetable_properties:
+          description: A list of of the facetable properties for the resource type
+          items:
+            $ref: '#/components/schemas/FacetLabel'
+          title: Facetable Properties
+          type: array
+      required:
+      - description
+      - facetable_properties
+      title: SearchableClass
+      type: object
     ValidationError:
       properties:
         loc:
@@ -189,6 +223,10 @@ paths:
         '200':
           content:
             application/json:
-              schema: {}
+              schema:
+                additionalProperties:
+                  $ref: '#/components/schemas/SearchableClass'
+                title: Response Search Options Rpc Search Options Get
+                type: object
           description: Successful Response
       summary: Retrieve all configured resource classes and facetable properties

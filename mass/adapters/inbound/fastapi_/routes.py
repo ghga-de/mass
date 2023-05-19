@@ -20,7 +20,6 @@ from typing import Union
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
-from fastapi.responses import JSONResponse
 
 from mass.config import Config
 from mass.container import Container
@@ -38,19 +37,15 @@ router = APIRouter()
 @router.get(
     path="/rpc/search-options",
     summary="Retrieve all configured resource classes and facetable properties",
-    response_class=JSONResponse,
+    response_model=dict[str, models.SearchableClass],
 )
 @inject
 async def search_options(
     config: Config = Depends(Provide[Container.config]),
-) -> JSONResponse:
+) -> dict[str, models.SearchableClass]:
     """Returns the configured searchable classes"""
 
-    content = {
-        class_name: class_config.dict()
-        for class_name, class_config in config.searchable_classes.items()
-    }
-    return JSONResponse(content=content)
+    return config.searchable_classes
 
 
 # POST /rpc/search
