@@ -21,6 +21,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
+from mass.adapters.inbound.fastapi_ import models as api_models
 from mass.config import Config
 from mass.container import Container
 from mass.core import models
@@ -61,7 +62,7 @@ async def search_options(
 )
 @inject
 async def search(
-    parameters: models.SearchParameters,
+    parameters: api_models.SearchParameters,
     query_handler: QueryHandlerPort = Depends(Provide[Container.query_handler]),
 ) -> Union[models.QueryResults, None]:
     """Perform search query"""
