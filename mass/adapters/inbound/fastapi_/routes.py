@@ -15,6 +15,71 @@
 #
 
 """Contains API endpoints"""
-from fastapi import APIRouter
+from typing import Union
+
+from dependency_injector.wiring import Provide, inject
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from fastapi.responses import JSONResponse
+
+from mass.config import Config
+from mass.container import Container
+from mass.core import models
+from mass.ports.inbound.query_handler import (
+    ClassNotConfiguredError,
+    QueryHandlerPort,
+    SearchError,
+)
 
 router = APIRouter()
+
+
+# GET /rpc/search-options
+@router.get(
+    path="/rpc/search-options",
+    summary="Retrieve all configured resource classes and facetable properties",
+    response_class=JSONResponse,
+)
+@inject
+async def search_options(
+    config: Config = Depends(Provide[Container.config]),
+) -> JSONResponse:
+    """Returns the configured searchable classes"""
+
+    content = {
+        class_name: class_config.dict()
+        for class_name, class_config in config.searchable_classes.items()
+    }
+    return JSONResponse(content=content)
+
+
+# POST /rpc/search
+@router.post(
+    path="/rpc/search",
+    summary="Perform a search using query string and filter parameters",
+    response_model=models.QueryResults,
+)
+@inject
+async def search(
+    parameters: models.SearchParameters,
+    query_handler: QueryHandlerPort = Depends(Provide[Container.query_handler]),
+) -> Union[models.QueryResults, None]:
+    """Perform search query"""
+    try:
+        results = await query_handler.handle_query(
+            class_name=parameters.class_name,
+            query=parameters.query,
+            filters=parameters.filters,
+            skip=parameters.skip,
+            limit=parameters.limit,
+        )
+    except ClassNotConfiguredError as err:
+        raise HTTPException(
+            status_code=404, detail="The specified class name is invalid"
+        ) from err
+    except SearchError as err:
+        raise HTTPException(
+            status_code=500, detail="An error occurred during search operation"
+        ) from err
+
+    return results
