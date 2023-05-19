@@ -15,6 +15,7 @@
 
 """Defines dataclasses for holding business-logic data"""
 from collections import OrderedDict
+from typing import Optional
 
 from hexkit.custom_types import JsonObject
 from pydantic import BaseModel, Field
@@ -66,3 +67,21 @@ class QueryResults(BaseModel):
     facets: list[Facet] = Field(default=[], description="Contains the faceted fields")
     count: int = Field(default=0, description="The number of results found")
     hits: list[Resource] = Field(default=[], description="The search results")
+
+
+class SearchParameters(BaseModel):
+    """Represents the data submitted in a search query"""
+
+    class_name: str = Field(
+        ..., description="The name of the resource class, e.g. Dataset"
+    )
+    query: str = Field(default="", description="The keyword search for the query")
+    filters: list[Filter] = Field(
+        default=[], description="The filters to apply to the search"
+    )
+    skip: int = Field(
+        default=0, description="The number of results to skip for pagination"
+    )
+    limit: Optional[int] = Field(
+        default=None, description="Limit the results to this number"
+    )
