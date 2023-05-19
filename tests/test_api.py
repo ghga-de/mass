@@ -16,7 +16,6 @@
 from typing import Optional
 
 import pytest
-from ghga_service_commons.api.testing import AsyncTestClient
 from hexkit.custom_types import JsonObject
 from hexkit.providers.mongodb.testutils import (  # noqa: F401
     MongoDbFixture,
@@ -24,7 +23,6 @@ from hexkit.providers.mongodb.testutils import (  # noqa: F401
 )
 
 from mass.core import models
-from mass.main import get_configured_container, get_rest_api
 from tests.fixtures.config import get_config
 from tests.fixtures.joint import JointFixture, joint_fixture  # noqa: F401
 from tests.fixtures.mongo import populated_mongodb_fixture  # noqa: F401
@@ -65,17 +63,10 @@ async def call_search(
 
 
 @pytest.mark.asyncio
-async def test_search_options():
+async def test_search_options(joint_fixture: JointFixture):  # noqa: F811
     """Verify that we can request the configured resource class information correctly"""
-    config = get_config()
-
-    async with get_configured_container(config=config) as container:
-        container.wire(modules=["mass.adapters.inbound.fastapi_.routes"])
-        api = get_rest_api(config=config)
-
-        async with AsyncTestClient(app=api) as test_client:
-            response = await test_client.get(url="/rpc/search-options")
-            assert response.json() == config.searchable_classes
+    response = await joint_fixture.rest_client.get(url="/rpc/search-options")
+    assert response.json() == joint_fixture.config.searchable_classes
 
 
 @pytest.mark.asyncio
