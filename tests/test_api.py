@@ -180,7 +180,7 @@ async def test_search_filters(joint_fixture: JointFixture):  # noqa: F811
 
 @pytest.mark.asyncio
 async def test_search_invalid_class(joint_fixture: JointFixture):  # noqa: F811
-    """Verify that searching with a bad class name results in a 404"""
+    """Verify that searching with a bad class name results in a 422"""
     search_parameters: JsonObject = {
         "class_name": "InvalidClassName",
         "query": "",
@@ -192,4 +192,4 @@ async def test_search_invalid_class(joint_fixture: JointFixture):  # noqa: F811
     response = await joint_fixture.rest_client.post(
         url="/rpc/search", json=search_parameters
     )
-    assert response.status_code == 404
+    assert response.status_code == 422
