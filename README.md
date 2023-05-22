@@ -27,7 +27,6 @@ help avoid having to rely on this feature by filtering down the number of hits t
 For more information see the OpenAPI spec linked below.
 
 
-
 ## Installation
 We recommend using the provided Docker container.
 
