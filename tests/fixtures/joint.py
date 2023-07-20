@@ -29,6 +29,7 @@ from hexkit.providers.mongodb.testutils import (  # noqa: F401
     get_mongodb_fixture,
 )
 from pymongo import TEXT
+from pytest_asyncio.plugin import _ScopeName
 
 from mass.config import Config
 from mass.container import Container
@@ -46,7 +47,7 @@ class JointFixture:
     mongodb: MongoDbFixture
     rest_client: AsyncTestClient
 
-    def reset_state(self):
+    def remove_data(self):
         """Delete everything in the database to start from a clean slate"""
         self.mongodb.empty_collections()
 
@@ -66,11 +67,13 @@ class JointFixture:
                 )
 
 
-@pytest_asyncio.fixture
-async def joint_fixture(
+async def joint_fixture_function(
     mongodb_fixture: MongoDbFixture,  # noqa: F811
 ) -> AsyncGenerator[JointFixture, None]:
-    """A fixture that embeds all other fixtures for API-level integration testing"""
+    """A fixture that embeds all other fixtures for API-level integration testing
+
+    **Do not call directly** Instead, use get_joint_fixture().
+    """
 
     # merge configs from different sources with the default one:
     config = get_config(sources=[mongodb_fixture.config])
@@ -90,4 +93,10 @@ async def joint_fixture(
             )
 
 
+def get_joint_fixture(scope: _ScopeName = "function"):
+    """Produce a joint fixture with desired scope"""
+    return pytest_asyncio.fixture(joint_fixture_function, scope=scope)
+
+
 mongodb_fixture = get_mongodb_fixture()
+joint_fixture = get_joint_fixture()
