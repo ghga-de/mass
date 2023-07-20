@@ -24,6 +24,7 @@ from typing import AsyncGenerator
 
 import pytest_asyncio
 from ghga_service_commons.api.testing import AsyncTestClient
+from hexkit.custom_types import JsonObject
 from hexkit.providers.mongodb.testutils import (  # noqa: F401
     MongoDbFixture,
     get_mongodb_fixture,
@@ -33,6 +34,7 @@ from pytest_asyncio.plugin import _ScopeName
 
 from mass.config import Config
 from mass.container import Container
+from mass.core import models
 from mass.main import get_configured_container, get_rest_api
 from tests.fixtures.config import get_config
 from tests.fixtures.utils import get_resources_from_file
@@ -47,11 +49,11 @@ class JointFixture:
     mongodb: MongoDbFixture
     rest_client: AsyncTestClient
 
-    def remove_data(self):
+    def remove_data(self) -> None:
         """Delete everything in the database to start from a clean slate"""
         self.mongodb.empty_collections()
 
-    def load_test_data(self):
+    def load_test_data(self) -> None:
         """Populate a collection for each file in test_data"""
         filename_pattern = re.compile(r"/(\w+)\.json")
         for filename in glob.glob("tests/fixtures/test_data/*.json"):
@@ -65,6 +67,14 @@ class JointFixture:
                 self.mongodb.client[self.config.db_name][collection_name].create_index(
                     keys=[("$**", TEXT)]
                 )
+
+    async def search(self, search_parameters: JsonObject) -> models.QueryResults:
+        """Convenience function to call the /rpc/search endpoint"""
+        response = await self.rest_client.post(
+            url="/rpc/search", json=search_parameters
+        )
+        results = models.QueryResults(**response.json())
+        return results
 
 
 async def joint_fixture_function(

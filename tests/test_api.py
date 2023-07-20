@@ -54,15 +54,6 @@ def compare(
         assert results.hits == hits
 
 
-async def call_search(
-    search_parameters: JsonObject, fixture: JointFixture
-) -> models.QueryResults:
-    """Convenience function to call the /rpc/search endpoint"""
-    response = await fixture.rest_client.post(url="/rpc/search", json=search_parameters)
-    results = models.QueryResults(**response.json())
-    return results
-
-
 @pytest.mark.asyncio
 async def test_search_options(joint_fixture: JointFixture):  # noqa: F811
     """Verify that we can request the configured resource class information correctly"""
@@ -113,7 +104,7 @@ async def test_search(joint_fixture: JointFixture, reset_state):  # noqa: F811
         "skip": 0,
     }
 
-    results = await call_search(search_parameters, joint_fixture)
+    results = await joint_fixture.search(search_parameters)
     compare(results=results, count=3, hit_length=3)
 
 
@@ -130,7 +121,7 @@ async def test_search_with_limit(
         "limit": 1,
     }
 
-    results = await call_search(search_parameters, joint_fixture)
+    results = await joint_fixture.search(search_parameters)
     hit = {
         "id_": "1HotelAlpha-id",
         "content": {
@@ -158,7 +149,7 @@ async def test_search_keywords(joint_fixture: JointFixture, reset_state):  # noq
         "skip": 0,
     }
 
-    results = await call_search(search_parameters, joint_fixture)
+    results = await joint_fixture.search(search_parameters)
     compare(results=results, count=2, hit_length=2)
 
 
@@ -172,7 +163,7 @@ async def test_search_filters(joint_fixture: JointFixture, reset_state):  # noqa
         "skip": 0,
     }
 
-    results = await call_search(search_parameters, joint_fixture)
+    results = await joint_fixture.search(search_parameters)
     compare(results=results, count=1, hit_length=1)
 
 
