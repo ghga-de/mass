@@ -22,17 +22,11 @@ import pytest
 from mass.core import models
 from mass.ports.inbound.query_handler import ClassNotConfiguredError, SearchError
 from tests.fixtures.config import get_config
-from tests.fixtures.module_scope_fixtures import (  # noqa: F401
-    JointFixture,
-    event_loop,
-    joint_fixture,
-    mongodb_fixture,
-    reset_state,
-)
+from tests.fixtures.joint import JointFixture
 
 
 @pytest.mark.asyncio
-async def test_basic_query(joint_fixture: JointFixture, reset_state):  # noqa: F811
+async def test_basic_query(joint_fixture: JointFixture, reset_state):
     """Make sure we can pull back the documents as expected"""
 
     # pull back all 3 test documents
@@ -45,7 +39,7 @@ async def test_basic_query(joint_fixture: JointFixture, reset_state):  # noqa: F
 
 
 @pytest.mark.asyncio
-async def test_text_search(joint_fixture: JointFixture, reset_state):  # noqa: F811
+async def test_text_search(joint_fixture: JointFixture, reset_state):
     """Test basic text search"""
 
     query_handler = await joint_fixture.container.query_handler()
@@ -58,7 +52,7 @@ async def test_text_search(joint_fixture: JointFixture, reset_state):  # noqa: F
 
 
 @pytest.mark.asyncio
-async def test_filters_work(joint_fixture: JointFixture, reset_state):  # noqa: F811
+async def test_filters_work(joint_fixture: JointFixture, reset_state):
     """Test a query with filters selected but no query string"""
 
     query_handler = await joint_fixture.container.query_handler()
@@ -85,7 +79,7 @@ async def test_filters_work(joint_fixture: JointFixture, reset_state):  # noqa: 
 
 
 @pytest.mark.asyncio
-async def test_facets_returned(joint_fixture: JointFixture, reset_state):  # noqa: F811
+async def test_facets_returned(joint_fixture: JointFixture, reset_state):
     """Verify that facet fields are returned correctly"""
     query_handler = await joint_fixture.container.query_handler()
     results_faceted = await query_handler.handle_query(
@@ -117,7 +111,7 @@ async def test_facets_returned(joint_fixture: JointFixture, reset_state):  # noq
 
 
 @pytest.mark.asyncio
-async def test_limit_parameter(joint_fixture: JointFixture, reset_state):  # noqa: F811
+async def test_limit_parameter(joint_fixture: JointFixture, reset_state):
     """Test that the limit parameter works"""
     query_handler = await joint_fixture.container.query_handler()
     results_limited = await query_handler.handle_query(
@@ -127,7 +121,7 @@ async def test_limit_parameter(joint_fixture: JointFixture, reset_state):  # noq
 
 
 @pytest.mark.asyncio
-async def test_skip_parameter(joint_fixture: JointFixture, reset_state):  # noqa: F811
+async def test_skip_parameter(joint_fixture: JointFixture, reset_state):
     """Test that the skip parameter works"""
     query_handler = await joint_fixture.container.query_handler()
     results_skip = await query_handler.handle_query(
@@ -138,7 +132,7 @@ async def test_skip_parameter(joint_fixture: JointFixture, reset_state):  # noqa
 
 
 @pytest.mark.asyncio
-async def test_all_parameters(joint_fixture: JointFixture, reset_state):  # noqa: F811
+async def test_all_parameters(joint_fixture: JointFixture, reset_state):
     """sanity check - make sure it all works together"""
     query_handler = await joint_fixture.container.query_handler()
     results_all = await query_handler.handle_query(
@@ -154,7 +148,7 @@ async def test_all_parameters(joint_fixture: JointFixture, reset_state):  # noqa
 
 
 @pytest.mark.asyncio
-async def test_resource_load(joint_fixture: JointFixture, reset_state):  # noqa: F811
+async def test_resource_load(joint_fixture: JointFixture, reset_state):
     """Test the load function in the query handler"""
     query_handler = await joint_fixture.container.query_handler()
 
@@ -195,9 +189,7 @@ async def test_resource_load(joint_fixture: JointFixture, reset_state):  # noqa:
 
 
 @pytest.mark.asyncio
-async def test_error_from_malformed_resource(
-    joint_fixture: JointFixture, reset_state  # noqa: F811
-):
+async def test_error_from_malformed_resource(joint_fixture: JointFixture, reset_state):
     """Make sure we get an error when the DB has malformed content, since that has to be fixed"""
     query_handler = await joint_fixture.container.query_handler()
 
@@ -220,7 +212,7 @@ async def test_error_from_malformed_resource(
 
 
 @pytest.mark.asyncio
-async def test_absent_resource(joint_fixture: JointFixture):  # noqa: F811
+async def test_absent_resource(joint_fixture: JointFixture):
     """Make sure we get an error when looking for a resource type that doesn't exist"""
     query_handler = await joint_fixture.container.query_handler()
     with pytest.raises(ClassNotConfiguredError):

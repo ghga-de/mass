@@ -14,7 +14,10 @@
 # limitations under the License.
 #
 
-"""Contains module-scoped fixtures"""
+"""Setup for testing
+
+Since we're using session-scoped fixtures, declare everything in here.
+"""
 
 import pytest_asyncio
 from hexkit.providers.mongodb.testutils import get_mongodb_fixture
@@ -24,7 +27,7 @@ from tests.fixtures.joint import JointFixture, get_joint_fixture
 
 
 @pytest_asyncio.fixture
-async def reset_state(joint_fixture: JointFixture):  # noqa: F811
+def reset_state(joint_fixture: JointFixture):  # noqa: F811
     """Clear joint_fixture state before and after tests that use this fixture.
 
     This is a function-level fixture because it needs to run in each test.
@@ -36,6 +39,8 @@ async def reset_state(joint_fixture: JointFixture):  # noqa: F811
     joint_fixture.remove_data()
 
 
-event_loop = get_event_loop("module")
-mongodb_fixture = get_mongodb_fixture("module")
-joint_fixture = get_joint_fixture("module")
+event_loop = get_event_loop("session")
+
+
+mongodb_fixture = get_mongodb_fixture("session")
+joint_fixture = get_joint_fixture("session")
