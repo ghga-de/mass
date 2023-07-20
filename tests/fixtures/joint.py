@@ -49,7 +49,7 @@ class JointFixture:
     mongodb: MongoDbFixture
     rest_client: AsyncTestClient
 
-    def remove_data(self) -> None:
+    def remove_db_data(self) -> None:
         """Delete everything in the database to start from a clean slate"""
         self.mongodb.empty_collections()
 
@@ -68,7 +68,9 @@ class JointFixture:
                     keys=[("$**", TEXT)]
                 )
 
-    async def search(self, search_parameters: JsonObject) -> models.QueryResults:
+    async def call_search_endpoint(
+        self, search_parameters: JsonObject
+    ) -> models.QueryResults:
         """Convenience function to call the /rpc/search endpoint"""
         response = await self.rest_client.post(
             url="/rpc/search", json=search_parameters

@@ -33,10 +33,10 @@ def reset_state(joint_fixture: JointFixture):  # noqa: F811
     This is a function-level fixture because it needs to run in each test.
     """
 
-    joint_fixture.remove_data()
+    joint_fixture.remove_db_data()
     joint_fixture.load_test_data()
     yield
-    joint_fixture.remove_data()
+    joint_fixture.remove_db_data()
 
 
 event_loop = get_event_loop("session")

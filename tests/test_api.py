@@ -60,7 +60,7 @@ async def test_search_options(joint_fixture: JointFixture):
 async def test_malformed_document(joint_fixture: JointFixture):
     """Test behavior from API perspective upon querying when bad doc exists"""
 
-    joint_fixture.remove_data()
+    joint_fixture.remove_db_data()
 
     query_handler = await joint_fixture.container.query_handler()
 
@@ -98,7 +98,7 @@ async def test_search(joint_fixture: JointFixture, reset_state):
         "skip": 0,
     }
 
-    results = await joint_fixture.search(search_parameters)
+    results = await joint_fixture.call_search_endpoint(search_parameters)
     compare(results=results, count=3, hit_length=3)
 
 
@@ -113,7 +113,7 @@ async def test_search_with_limit(joint_fixture: JointFixture, reset_state):
         "limit": 1,
     }
 
-    results = await joint_fixture.search(search_parameters)
+    results = await joint_fixture.call_search_endpoint(search_parameters)
     hit = {
         "id_": "1HotelAlpha-id",
         "content": {
@@ -141,7 +141,7 @@ async def test_search_keywords(joint_fixture: JointFixture, reset_state):
         "skip": 0,
     }
 
-    results = await joint_fixture.search(search_parameters)
+    results = await joint_fixture.call_search_endpoint(search_parameters)
     compare(results=results, count=2, hit_length=2)
 
 
@@ -155,7 +155,7 @@ async def test_search_filters(joint_fixture: JointFixture, reset_state):
         "skip": 0,
     }
 
-    results = await joint_fixture.search(search_parameters)
+    results = await joint_fixture.call_search_endpoint(search_parameters)
     compare(results=results, count=1, hit_length=1)
 
 
