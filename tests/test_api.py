@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+"""Tests to assess API functionality"""
+
 from typing import Optional
 
 import pytest

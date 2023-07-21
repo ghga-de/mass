@@ -15,7 +15,6 @@
 
 """Basic tests for presence of resources/documents in the database"""
 
-# pylint: disable=redefined-outer-name
 
 import pytest
 
