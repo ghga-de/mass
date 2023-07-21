@@ -89,7 +89,7 @@ async def test_malformed_document(joint_fixture: JointFixture):
 
 
 @pytest.mark.asyncio
-async def test_search(joint_fixture: JointFixture, reset_state):
+async def test_search(joint_fixture: JointFixture):
     """Basic query to pull back all documents for class name"""
     search_parameters: JsonObject = {
         "class_name": "DatasetEmbedded",
@@ -103,7 +103,7 @@ async def test_search(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_search_with_limit(joint_fixture: JointFixture, reset_state):
+async def test_search_with_limit(joint_fixture: JointFixture):
     """Make sure we get a count of 3 but only 1 hit"""
     search_parameters: JsonObject = {
         "class_name": "DatasetEmbedded",
@@ -132,7 +132,7 @@ async def test_search_with_limit(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_search_keywords(joint_fixture: JointFixture, reset_state):
+async def test_search_keywords(joint_fixture: JointFixture):
     """Make sure the query string is passed through intact"""
     search_parameters: JsonObject = {
         "class_name": "DatasetEmbedded",
@@ -146,7 +146,7 @@ async def test_search_keywords(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_search_filters(joint_fixture: JointFixture, reset_state):
+async def test_search_filters(joint_fixture: JointFixture):
     """Make sure filters work"""
     search_parameters: JsonObject = {
         "class_name": "DatasetEmbedded",
@@ -160,7 +160,7 @@ async def test_search_filters(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_search_invalid_class(joint_fixture: JointFixture, reset_state):
+async def test_search_invalid_class(joint_fixture: JointFixture):
     """Verify that searching with a bad class name results in a 422"""
     search_parameters: JsonObject = {
         "class_name": "InvalidClassName",

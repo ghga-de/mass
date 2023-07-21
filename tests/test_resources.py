@@ -26,7 +26,7 @@ from tests.fixtures.joint import JointFixture
 
 
 @pytest.mark.asyncio
-async def test_basic_query(joint_fixture: JointFixture, reset_state):
+async def test_basic_query(joint_fixture: JointFixture):
     """Make sure we can pull back the documents as expected"""
 
     # pull back all 3 test documents
@@ -39,7 +39,7 @@ async def test_basic_query(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_text_search(joint_fixture: JointFixture, reset_state):
+async def test_text_search(joint_fixture: JointFixture):
     """Test basic text search"""
 
     query_handler = await joint_fixture.container.query_handler()
@@ -52,7 +52,7 @@ async def test_text_search(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_filters_work(joint_fixture: JointFixture, reset_state):
+async def test_filters_work(joint_fixture: JointFixture):
     """Test a query with filters selected but no query string"""
 
     query_handler = await joint_fixture.container.query_handler()
@@ -79,7 +79,7 @@ async def test_filters_work(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_facets_returned(joint_fixture: JointFixture, reset_state):
+async def test_facets_returned(joint_fixture: JointFixture):
     """Verify that facet fields are returned correctly"""
     query_handler = await joint_fixture.container.query_handler()
     results_faceted = await query_handler.handle_query(
@@ -111,7 +111,7 @@ async def test_facets_returned(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_limit_parameter(joint_fixture: JointFixture, reset_state):
+async def test_limit_parameter(joint_fixture: JointFixture):
     """Test that the limit parameter works"""
     query_handler = await joint_fixture.container.query_handler()
     results_limited = await query_handler.handle_query(
@@ -121,7 +121,7 @@ async def test_limit_parameter(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_skip_parameter(joint_fixture: JointFixture, reset_state):
+async def test_skip_parameter(joint_fixture: JointFixture):
     """Test that the skip parameter works"""
     query_handler = await joint_fixture.container.query_handler()
     results_skip = await query_handler.handle_query(
@@ -132,7 +132,7 @@ async def test_skip_parameter(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_all_parameters(joint_fixture: JointFixture, reset_state):
+async def test_all_parameters(joint_fixture: JointFixture):
     """sanity check - make sure it all works together"""
     query_handler = await joint_fixture.container.query_handler()
     results_all = await query_handler.handle_query(
@@ -148,7 +148,7 @@ async def test_all_parameters(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_resource_load(joint_fixture: JointFixture, reset_state):
+async def test_resource_load(joint_fixture: JointFixture):
     """Test the load function in the query handler"""
     query_handler = await joint_fixture.container.query_handler()
 
@@ -189,7 +189,7 @@ async def test_resource_load(joint_fixture: JointFixture, reset_state):
 
 
 @pytest.mark.asyncio
-async def test_error_from_malformed_resource(joint_fixture: JointFixture, reset_state):
+async def test_error_from_malformed_resource(joint_fixture: JointFixture):
     """Make sure we get an error when the DB has malformed content, since that has to be fixed"""
     query_handler = await joint_fixture.container.query_handler()
 

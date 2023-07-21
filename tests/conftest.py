@@ -19,24 +19,22 @@
 Since we're using session-scoped fixtures, declare everything in here.
 """
 
-import pytest_asyncio
+import pytest
 from hexkit.providers.mongodb.testutils import get_mongodb_fixture
 from hexkit.providers.testing.utils import get_event_loop
 
 from tests.fixtures.joint import JointFixture, get_joint_fixture
 
 
-@pytest_asyncio.fixture
+@pytest.fixture(autouse=True)
 def reset_state(joint_fixture: JointFixture):  # noqa: F811
-    """Clear joint_fixture state before and after tests that use this fixture.
+    """Clear joint_fixture state before tests.
 
     This is a function-level fixture because it needs to run in each test.
     """
-
     joint_fixture.remove_db_data()
     joint_fixture.load_test_data()
     yield
-    joint_fixture.remove_db_data()
 
 
 event_loop = get_event_loop("session")
