@@ -34,7 +34,6 @@ def reset_state(joint_fixture: JointFixture):  # noqa: F811
     """
     joint_fixture.remove_db_data()
     joint_fixture.load_test_data()
-    yield
 
 
 event_loop = get_event_loop("session")
