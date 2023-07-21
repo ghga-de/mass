@@ -106,7 +106,3 @@ async def joint_fixture_function(
 def get_joint_fixture(scope: _ScopeName = "function"):
     """Produce a joint fixture with desired scope"""
     return pytest_asyncio.fixture(joint_fixture_function, scope=scope)
-
-
-mongodb_fixture = get_mongodb_fixture()
-joint_fixture = get_joint_fixture()
