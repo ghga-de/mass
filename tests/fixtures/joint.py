@@ -59,7 +59,7 @@ class JointFixture:
         for filename in glob.glob("tests/fixtures/test_data/*.json"):
             match_obj = re.search(filename_pattern, filename)
             if match_obj:
-                collection_name = match_obj.groups()[0]
+                collection_name = match_obj.group(1)
                 resources = get_resources_from_file(filename)
                 self.mongodb.client[self.config.db_name][collection_name].insert_many(
                     resources
