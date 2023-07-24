@@ -38,7 +38,7 @@ class SearchError(RuntimeError):
         )
 
 
-class FailedDeletionError(RuntimeError):
+class DeletionFailedError(RuntimeError):
     """Raised when a deletion attempt fails because the ID can't be found"""
 
     def __init__(self, resource_id: str):

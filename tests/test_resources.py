@@ -21,7 +21,7 @@ import pytest
 from mass.core import models
 from mass.ports.inbound.query_handler import (
     ClassNotConfiguredError,
-    FailedDeletionError,
+    DeletionFailedError,
     SearchError,
 )
 from tests.fixtures.config import get_config
@@ -264,7 +264,7 @@ async def test_resource_deletion_failure(joint_fixture: JointFixture):
     assert all_resources.count > 0
 
     # try to delete a resource that doesn't exist
-    with pytest.raises(FailedDeletionError):
+    with pytest.raises(DeletionFailedError):
         await query_handler.delete_resource(
             resource_id="not-here", class_name="DatasetEmbedded"
         )

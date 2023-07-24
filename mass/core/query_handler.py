@@ -23,7 +23,7 @@ from mass.config import SearchableClassesConfig
 from mass.core import models
 from mass.ports.inbound.query_handler import (
     ClassNotConfiguredError,
-    FailedDeletionError,
+    DeletionFailedError,
     QueryHandlerPort,
     SearchError,
 )
@@ -60,7 +60,7 @@ class QueryHandler(QueryHandlerPort):
         try:
             await dao.delete(id_=resource_id)
         except ResourceNotFoundError as err:
-            raise FailedDeletionError(resource_id) from err
+            raise DeletionFailedError(resource_id) from err
 
     async def handle_query(
         self,
