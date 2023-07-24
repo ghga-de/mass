@@ -58,7 +58,7 @@ class QueryHandlerPort(ABC):
         Raises:
             ClassNotConfiguredError - when the class_name parameter does not
                 match any configured class
-            FailedDeletionError - when the provided ID doesn't match any resource
+            DeletionFailedError - when the provided ID doesn't match any resource
                 found in the database.
         """
 
