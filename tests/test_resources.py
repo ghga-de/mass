@@ -236,7 +236,7 @@ async def test_resource_deletion(joint_fixture: JointFixture):
         class_name="DatasetEmbedded", query="", filters=[]
     )
 
-    assert all_resources.count > 0
+    assert all_resources.count > 1
     await query_handler.delete_resource(
         resource_id="1HotelAlpha-id", class_name="DatasetEmbedded"
     )
