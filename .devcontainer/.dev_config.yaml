@@ -10,3 +10,8 @@ searchable_classes:
         name: Study Type
       - key: "study.project.alias" # a property part of a deeply embedded resource
         name: Project Alias
+searchable_resource_events_topic: searchable_resource_events
+resource_deletion_event_type: searchable_resource_deleted
+resource_upsertion_event_type: searchable_resource_upserted
+service_instance_id: 001
+kafka_servers: ["kafka:9092"]
