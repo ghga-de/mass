@@ -19,7 +19,7 @@ import pytest
 from ghga_event_schemas import pydantic_ as event_schemas
 
 from mass.core import models
-from mass.ports.inbound.query_handler import DeletionFailedError
+from mass.ports.inbound.query_handler import DeletionFailedWarning
 from tests.fixtures.joint import JointFixture
 
 
@@ -59,7 +59,7 @@ async def test_resource_upsert(
 
     # put together event payload
     payload = event_schemas.SearchableResource(
-        accession=resource.id_,
+        accession=resource_id,
         class_name="DatasetEmbedded",
         content=content,
     ).dict()
@@ -69,7 +69,7 @@ async def test_resource_upsert(
         payload=payload,
         type_=joint_fixture.config.resource_upsertion_event_type,
         topic=joint_fixture.config.searchable_resource_events_topic,
-        key=f"dataset_embedded_{resource.id_}",
+        key=f"dataset_embedded_{resource_id}",
     )
 
     # consume the event
@@ -128,7 +128,10 @@ async def test_resource_delete(joint_fixture: JointFixture):
 
 @pytest.mark.asyncio
 async def test_delete_nonexistent_resource(joint_fixture: JointFixture):
-    """Test for correct error handling when trying to delete a non-existent resource"""
+    """Test for correct warning when trying to delete a non-existent resource
+
+    Don't want to stop event consumer with an error, so should only create a warning
+    """
 
     query_handler = await joint_fixture.container.query_handler()
 
@@ -153,6 +156,6 @@ async def test_delete_nonexistent_resource(joint_fixture: JointFixture):
     )
 
     # consume the event
-    with pytest.raises(DeletionFailedError):
+    with pytest.warns(DeletionFailedWarning):
         consumer = await joint_fixture.container.event_subscriber()
         await consumer.run(forever=False)

@@ -21,7 +21,8 @@ import pytest
 from mass.core import models
 from mass.ports.inbound.query_handler import (
     ClassNotConfiguredError,
-    DeletionFailedError,
+    ClassNotConfiguredWarning,
+    DeletionFailedWarning,
     SearchError,
 )
 from tests.fixtures.config import get_config
@@ -193,7 +194,7 @@ async def test_resource_load(joint_fixture: JointFixture):
 
 @pytest.mark.asyncio
 async def test_loading_non_configured_resource(joint_fixture: JointFixture):
-    """Test that we get the right error for loading a non-configured class_name"""
+    """Test that we get the right warning for loading a non-configured class_name"""
     query_handler = await joint_fixture.container.query_handler()
 
     # define and load a new resource
@@ -205,7 +206,7 @@ async def test_loading_non_configured_resource(joint_fixture: JointFixture):
             "category": "test object",
         },
     )
-    with pytest.raises(ClassNotConfiguredError):
+    with pytest.warns(ClassNotConfiguredWarning):
         await query_handler.load_resource(resource=resource, class_name="ThisWillBreak")
 
 
@@ -272,7 +273,7 @@ async def test_resource_deletion(joint_fixture: JointFixture):
 
 @pytest.mark.asyncio
 async def test_resource_deletion_failure(joint_fixture: JointFixture):
-    """Test for correct errors when failing to delete a resource"""
+    """Test for correct warning when failing to delete a resource"""
 
     query_handler = await joint_fixture.container.query_handler()
     all_resources = await query_handler.handle_query(
@@ -282,7 +283,7 @@ async def test_resource_deletion_failure(joint_fixture: JointFixture):
     assert all_resources.count > 0
 
     # try to delete a resource that doesn't exist
-    with pytest.raises(DeletionFailedError):
+    with pytest.warns(DeletionFailedWarning):
         await query_handler.delete_resource(
             resource_id="not-here", class_name="DatasetEmbedded"
         )
@@ -297,10 +298,10 @@ async def test_resource_deletion_failure(joint_fixture: JointFixture):
 
 @pytest.mark.asyncio
 async def test_resource_deletion_not_configured(joint_fixture: JointFixture):
-    """Test for correct error when trying to delete a non-configured resource"""
+    """Test for correct warning when trying to delete a non-configured resource"""
     query_handler = await joint_fixture.container.query_handler()
 
-    with pytest.raises(ClassNotConfiguredError):
+    with pytest.warns(ClassNotConfiguredWarning):
         await query_handler.delete_resource(
             resource_id="1HotelAlpha-id", class_name="Not-Configured"
         )
