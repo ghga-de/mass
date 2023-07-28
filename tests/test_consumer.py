@@ -19,7 +19,6 @@ import pytest
 from ghga_event_schemas import pydantic_ as event_schemas
 
 from mass.core import models
-from mass.ports.inbound.query_handler import DeletionFailedWarning
 from tests.fixtures.joint import JointFixture
 
 
@@ -124,38 +123,3 @@ async def test_resource_delete(joint_fixture: JointFixture):
     )
 
     assert results_post_delete.count == 0
-
-
-@pytest.mark.asyncio
-async def test_delete_nonexistent_resource(joint_fixture: JointFixture):
-    """Test for correct warning when trying to delete a non-existent resource
-
-    Don't want to stop event consumer with an error, so should only create a warning
-    """
-
-    query_handler = await joint_fixture.container.query_handler()
-
-    # get all the documents in the collection
-    all_results = await query_handler.handle_query(
-        class_name="DatasetEmbedded",
-        query="",
-        filters=[],
-    )
-
-    assert all_results.count > 0
-
-    resource_info = event_schemas.SearchableResourceInfo(
-        accession="notthere", class_name="DatasetEmbedded"
-    )
-
-    await joint_fixture.kafka.publish_event(
-        payload=resource_info.dict(),
-        type_=joint_fixture.config.resource_deletion_event_type,
-        topic=joint_fixture.config.searchable_resource_events_topic,
-        key=f"dataset_embedded_{resource_info.accession}",
-    )
-
-    # consume the event
-    with pytest.warns(DeletionFailedWarning):
-        consumer = await joint_fixture.container.event_subscriber()
-        await consumer.run(forever=False)

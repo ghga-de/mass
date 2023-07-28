@@ -29,18 +29,6 @@ class ClassNotConfiguredError(RuntimeError):
         super().__init__(message)
 
 
-class ClassNotConfiguredWarning(RuntimeWarning):
-    """Raised when loaded/deleted resource's class_name isn't configured
-
-    Used for load/delete functions instead of ClassNotFiguredError in order to
-    avoid stopping the event consumer.
-    """
-
-    def __init__(self, class_name: str):
-        message = f"Class with name '{class_name}' not configured."
-        super().__init__(message)
-
-
 class SearchError(RuntimeError):
     """Raised when there is a problem searching with the query parameters."""
 
@@ -50,7 +38,7 @@ class SearchError(RuntimeError):
         )
 
 
-class DeletionFailedWarning(RuntimeWarning):
+class DeletionFailedError(RuntimeError):
     """Raised when a deletion attempt fails because the ID can't be found"""
 
     def __init__(self, resource_id: str):
@@ -68,9 +56,9 @@ class QueryHandlerPort(ABC):
         """Delete resource with given ID and class name from the database
 
         Raises:
-            ClassNotConfiguredWarning - when the class_name parameter does not
+            ClassNotConfiguredError - when the class_name parameter does not
                 match any configured class
-            DeletionFailedWarning - when the provided ID doesn't match any resource
+            DeletionFailedError - when the provided ID doesn't match any resource
                 found in the database.
         """
 
@@ -103,6 +91,6 @@ class QueryHandlerPort(ABC):
         """Load a resource into the database.
 
         Raises:
-            ClassNotConfiguredWarning - when the class_name parameter does not match
+            ClassNotConfiguredError - when the class_name parameter does not match
                 any configured class.
         """
