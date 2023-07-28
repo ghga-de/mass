@@ -66,7 +66,7 @@ The service requires the following configuration parameters:
 
   - **Additional Properties**: Refer to *#/definitions/SearchableClass*.
 
-- **`searchable_resource_events_topic`** *(string)*: Name of the event topic used to track notification events.
+- **`searchable_resource_events_topic`** *(string)*: Name of the event topic used to track searchable resource deletion and upsertion events.
 
 - **`resource_deletion_event_type`** *(string)*: The type to use for events with deletion instructions.
 

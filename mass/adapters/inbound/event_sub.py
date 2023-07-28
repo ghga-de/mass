@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Event subscriber details for notification events"""
+"""Event subscriber details for searchable resource events"""
 import ghga_event_schemas.pydantic_ as event_schemas
 from ghga_event_schemas.validation import get_validated_payload
 from hexkit.custom_types import Ascii, JsonObject
@@ -29,8 +29,11 @@ class EventSubTranslatorConfig(BaseSettings):
 
     searchable_resource_events_topic: str = Field(
         ...,
-        description="Name of the event topic used to track notification events",
-        example="searchable_resource_events",
+        description=(
+            "Name of the event topic used to track searchable resource deletion "
+            + "and upsertion events"
+        ),
+        example="searchable_resource",
     )
     resource_deletion_event_type: str = Field(
         ...,
@@ -45,7 +48,7 @@ class EventSubTranslatorConfig(BaseSettings):
 
 
 class EventSubTranslator(EventSubscriberProtocol):
-    """A translator that can consume Notification events"""
+    """A translator that can consume events regarding searchable resources"""
 
     def __init__(
         self, *, config: EventSubTranslatorConfig, query_handler: QueryHandlerPort
@@ -74,7 +77,7 @@ class EventSubTranslator(EventSubscriberProtocol):
     async def _handle_upsertion(self, *, payload: JsonObject):
         """Load the specified resource.
 
-        Validates the schema, then makes a call to the notifier with the payload.
+        Validates the schema, then makes a call to the query handler with the payload.
         """
         validated_payload = get_validated_payload(
             payload=payload, schema=event_schemas.SearchableResource
@@ -91,16 +94,14 @@ class EventSubTranslator(EventSubscriberProtocol):
         )
 
     async def _consume_validated(
-        self, *, payload: JsonObject, type_: Ascii, topic: Ascii
+        self,
+        *,
+        payload: JsonObject,
+        type_: Ascii,
+        topic: Ascii  # pylint: disable=unused-argument
     ) -> None:
         """Consumes an event"""
-        if (
-            type_ == self._config.resource_deletion_event_type
-            and topic == self._config.searchable_resource_events_topic
-        ):
+        if type_ == self._config.resource_deletion_event_type:
             await self._handle_deletion(payload=payload)
-        elif (
-            type_ == self._config.resource_upsertion_event_type
-            and topic == self._config.searchable_resource_events_topic
-        ):
+        elif type_ == self._config.resource_upsertion_event_type:
             await self._handle_upsertion(payload=payload)

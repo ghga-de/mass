@@ -16,8 +16,8 @@
     },
     "searchable_resource_events_topic": {
       "title": "Searchable Resource Events Topic",
-      "description": "Name of the event topic used to track notification events",
-      "example": "searchable_resource_events",
+      "description": "Name of the event topic used to track searchable resource deletion and upsertion events",
+      "example": "searchable_resource",
       "env_names": [
         "mass_searchable_resource_events_topic"
       ],
