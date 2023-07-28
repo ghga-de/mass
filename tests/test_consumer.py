@@ -67,7 +67,7 @@ async def test_resource_upsert(
     await joint_fixture.kafka.publish_event(
         payload=payload,
         type_=joint_fixture.config.resource_upsertion_event_type,
-        topic=joint_fixture.config.searchable_resource_events_topic,
+        topic=joint_fixture.config.resource_change_event_topic,
         key=f"dataset_embedded_{resource_id}",
     )
 
@@ -109,7 +109,7 @@ async def test_resource_delete(joint_fixture: JointFixture):
     await joint_fixture.kafka.publish_event(
         payload=resource_info.dict(),
         type_=joint_fixture.config.resource_deletion_event_type,
-        topic=joint_fixture.config.searchable_resource_events_topic,
+        topic=joint_fixture.config.resource_change_event_topic,
         key=f"dataset_embedded_{resource_info.accession}",
     )
 

@@ -13,6 +13,7 @@ kafka_servers:
 log_level: info
 openapi_url: /openapi.json
 port: 8080
+resource_change_event_topic: searchable_resource_events
 resource_deletion_event_type: searchable_resource_deleted
 resource_upsertion_event_type: searchable_resource_upserted
 searchable_classes:
@@ -25,7 +26,6 @@ searchable_classes:
       name: Study Type
     - key: study.project.alias
       name: Project Alias
-searchable_resource_events_topic: searchable_resource_events
 service_instance_id: '1'
 service_name: mass
 workers: 1

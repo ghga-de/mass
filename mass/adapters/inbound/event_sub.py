@@ -48,10 +48,10 @@ logger.setLevel(logging.WARNING)
 class EventSubTranslatorConfig(BaseSettings):
     """Config for the event subscriber"""
 
-    searchable_resource_events_topic: str = Field(
+    resource_change_event_topic: str = Field(
         ...,
         description=(
-            "Name of the event topic used to track searchable resource deletion "
+            "Name of the event topic used to track resource deletion "
             + "and upsertion events"
         ),
         example="searchable_resource",
@@ -74,7 +74,7 @@ class EventSubTranslator(EventSubscriberProtocol):
     def __init__(
         self, *, config: EventSubTranslatorConfig, query_handler: QueryHandlerPort
     ):
-        self.topics_of_interest = [config.searchable_resource_events_topic]
+        self.topics_of_interest = [config.resource_change_event_topic]
         self.types_of_interest = [
             config.resource_deletion_event_type,
             config.resource_upsertion_event_type,
