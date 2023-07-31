@@ -55,33 +55,31 @@ ERROR_LEVEL = "ERROR"
             BAD_CLASS_NAME_DELETE,
             DELETE_EVENT,
             WARNING_LEVEL,
-            CLASS_NOT_CONFIGURED_LOG_MSG.replace("%s", BAD_CLASS_NAME),
+            CLASS_NOT_CONFIGURED_LOG_MSG % (BAD_CLASS_NAME,),
         ),
         (
             BAD_CLASS_NAME_UPSERT,
             UPSERT_EVENT,
             WARNING_LEVEL,
-            CLASS_NOT_CONFIGURED_LOG_MSG.replace("%s", BAD_CLASS_NAME),
+            CLASS_NOT_CONFIGURED_LOG_MSG % (BAD_CLASS_NAME,),
         ),
         (
             MetadataDatasetID(accession="fail"),
             DELETE_EVENT,
             ERROR_LEVEL,
-            SCHEMA_VALIDATION_ERROR_LOG_MSG.replace(
-                "%s", SearchableResourceInfo.__name__
-            ),
+            SCHEMA_VALIDATION_ERROR_LOG_MSG % (SearchableResourceInfo.__name__,),
         ),
         (
             MetadataDatasetID(accession="fail"),
             UPSERT_EVENT,
             ERROR_LEVEL,
-            SCHEMA_VALIDATION_ERROR_LOG_MSG.replace("%s", SearchableResource.__name__),
+            SCHEMA_VALIDATION_ERROR_LOG_MSG % (SearchableResource.__name__,),
         ),
         (
             BAD_ACCESSION_DELETE,
             DELETE_EVENT,
             WARNING_LEVEL,
-            DELETION_FAILED_LOG_MSG.replace("%s", BAD_ACCESSION),
+            DELETION_FAILED_LOG_MSG % (BAD_ACCESSION,),
         ),
     ],
     ids=[
