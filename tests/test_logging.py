@@ -54,13 +54,13 @@ ERROR_LEVEL = "ERROR"
         (
             BAD_CLASS_NAME_DELETE,
             DELETE_EVENT,
-            WARNING_LEVEL,
+            ERROR_LEVEL,
             CLASS_NOT_CONFIGURED_LOG_MSG % (BAD_CLASS_NAME,),
         ),
         (
             BAD_CLASS_NAME_UPSERT,
             UPSERT_EVENT,
-            WARNING_LEVEL,
+            ERROR_LEVEL,
             CLASS_NOT_CONFIGURED_LOG_MSG % (BAD_CLASS_NAME,),
         ),
         (

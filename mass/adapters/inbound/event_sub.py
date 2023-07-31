@@ -103,7 +103,7 @@ class EventSubTranslator(EventSubscriberProtocol):
         except QueryHandlerPort.AlreadyDeletedError:
             logger.warning(DELETION_FAILED_LOG_MSG, validated_payload.accession)
         except QueryHandlerPort.ClassNotConfiguredError:
-            logger.warning(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
+            logger.error(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
 
     async def _handle_upsertion(self, *, payload: JsonObject):
         """Load the specified resource.
@@ -132,7 +132,7 @@ class EventSubTranslator(EventSubscriberProtocol):
                 class_name=validated_payload.class_name,
             )
         except QueryHandlerPort.ClassNotConfiguredError:
-            logger.warning(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
+            logger.error(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
 
     async def _consume_validated(
         self,
