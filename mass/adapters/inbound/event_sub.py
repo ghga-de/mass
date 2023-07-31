@@ -88,23 +88,22 @@ class EventSubTranslator(EventSubscriberProtocol):
             validated_payload = get_validated_payload(
                 payload=payload, schema=event_schemas.SearchableResourceInfo
             )
-
-            try:
-                await self._query_handler.delete_resource(
-                    resource_id=validated_payload.accession,
-                    class_name=validated_payload.class_name,
-                )
-            except QueryHandlerPort.AlreadyDeletedError:
-                logger.warning(DELETION_FAILED_LOG_MSG, validated_payload.accession)
-            except QueryHandlerPort.ClassNotConfiguredError:
-                logger.warning(
-                    CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name
-                )
         except EventSchemaValidationError:
             logger.error(
                 SCHEMA_VALIDATION_ERROR_LOG_MSG,
                 event_schemas.SearchableResourceInfo.__name__,
             )
+            return
+
+        try:
+            await self._query_handler.delete_resource(
+                resource_id=validated_payload.accession,
+                class_name=validated_payload.class_name,
+            )
+        except QueryHandlerPort.AlreadyDeletedError:
+            logger.warning(DELETION_FAILED_LOG_MSG, validated_payload.accession)
+        except QueryHandlerPort.ClassNotConfiguredError:
+            logger.warning(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
 
     async def _handle_upsertion(self, *, payload: JsonObject):
         """Load the specified resource.
@@ -120,21 +119,20 @@ class EventSubTranslator(EventSubscriberProtocol):
                 id_=validated_payload.accession,
                 content=validated_payload.content,
             )
-
-            try:
-                await self._query_handler.load_resource(
-                    resource=resource,
-                    class_name=validated_payload.class_name,
-                )
-            except QueryHandlerPort.ClassNotConfiguredError:
-                logger.warning(
-                    CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name
-                )
         except EventSchemaValidationError:
             logger.error(
                 SCHEMA_VALIDATION_ERROR_LOG_MSG,
                 event_schemas.SearchableResource.__name__,
             )
+            return
+
+        try:
+            await self._query_handler.load_resource(
+                resource=resource,
+                class_name=validated_payload.class_name,
+            )
+        except QueryHandlerPort.ClassNotConfiguredError:
+            logger.warning(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
 
     async def _consume_validated(
         self,
