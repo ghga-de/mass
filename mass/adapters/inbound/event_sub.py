@@ -36,9 +36,7 @@ DELETION_FAILED_LOG_MSG = (
 )
 SCHEMA_VALIDATION_ERROR_LOG_MSG = "Failed to validate event schema for '%s'"
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+log = logging.getLogger(__name__)
 
 
 class EventSubTranslatorConfig(BaseSettings):
@@ -89,7 +87,7 @@ class EventSubTranslator(EventSubscriberProtocol):
                 payload=payload, schema=event_schemas.SearchableResourceInfo
             )
         except EventSchemaValidationError:
-            logger.error(
+            log.error(
                 SCHEMA_VALIDATION_ERROR_LOG_MSG,
                 event_schemas.SearchableResourceInfo.__name__,
             )
@@ -101,9 +99,9 @@ class EventSubTranslator(EventSubscriberProtocol):
                 class_name=validated_payload.class_name,
             )
         except QueryHandlerPort.AlreadyDeletedError:
-            logger.warning(DELETION_FAILED_LOG_MSG, validated_payload.accession)
+            log.warning(DELETION_FAILED_LOG_MSG, validated_payload.accession)
         except QueryHandlerPort.ClassNotConfiguredError:
-            logger.error(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
+            log.error(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
 
     async def _handle_upsertion(self, *, payload: JsonObject):
         """Load the specified resource.
@@ -120,7 +118,7 @@ class EventSubTranslator(EventSubscriberProtocol):
                 content=validated_payload.content,
             )
         except EventSchemaValidationError:
-            logger.error(
+            log.error(
                 SCHEMA_VALIDATION_ERROR_LOG_MSG,
                 event_schemas.SearchableResource.__name__,
             )
@@ -132,7 +130,7 @@ class EventSubTranslator(EventSubscriberProtocol):
                 class_name=validated_payload.class_name,
             )
         except QueryHandlerPort.ClassNotConfiguredError:
-            logger.error(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
+            log.error(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
 
     async def _consume_validated(
         self,

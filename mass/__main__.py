@@ -15,6 +15,7 @@
 
 """Entrypoint of the package"""
 
+
 from mass.cli import cli
 
 if __name__ == "__main__":
