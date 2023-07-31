@@ -26,11 +26,7 @@ from hexkit.protocols.eventsub import EventSubscriberProtocol
 from pydantic import BaseSettings, Field
 
 from mass.core.models import Resource
-from mass.ports.inbound.query_handler import (
-    ClassNotConfiguredError,
-    DeletionFailedError,
-    QueryHandlerPort,
-)
+from mass.ports.inbound.query_handler import QueryHandlerPort
 
 CLASS_NOT_CONFIGURED_LOG_MSG = "Class with name %s not configured."
 
@@ -98,9 +94,9 @@ class EventSubTranslator(EventSubscriberProtocol):
                     resource_id=validated_payload.accession,
                     class_name=validated_payload.class_name,
                 )
-            except DeletionFailedError:
+            except QueryHandlerPort.AlreadyDeletedError:
                 logger.warning(DELETION_FAILED_LOG_MSG, validated_payload.accession)
-            except ClassNotConfiguredError:
+            except QueryHandlerPort.ClassNotConfiguredError:
                 logger.warning(
                     CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name
                 )
@@ -130,7 +126,7 @@ class EventSubTranslator(EventSubscriberProtocol):
                     resource=resource,
                     class_name=validated_payload.class_name,
                 )
-            except ClassNotConfiguredError:
+            except QueryHandlerPort.ClassNotConfiguredError:
                 logger.warning(
                     CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name
                 )
