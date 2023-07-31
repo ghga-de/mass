@@ -278,7 +278,7 @@ async def test_resource_deletion_failure(joint_fixture: JointFixture):
     assert all_resources.count > 0
 
     # try to delete a resource that doesn't exist
-    with pytest.raises(query_handler.AlreadyDeletedError):
+    with pytest.raises(query_handler.ResourceNotFoundError):
         await query_handler.delete_resource(
             resource_id="not-here", class_name="DatasetEmbedded"
         )

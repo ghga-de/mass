@@ -57,7 +57,7 @@ class QueryHandler(QueryHandlerPort):
         try:
             await dao.delete(id_=resource_id)
         except ResourceNotFoundError as err:
-            raise self.AlreadyDeletedError(resource_id=resource_id) from err
+            raise self.ResourceNotFoundError(resource_id=resource_id) from err
 
     async def handle_query(
         self,

@@ -39,8 +39,8 @@ class QueryHandlerPort(ABC):
                 "Error executing search. Possibly a problem with the supplied parameters."
             )
 
-    class AlreadyDeletedError(RuntimeError):
-        """Raised when a deletion attempt fails because the ID can't be found"""
+    class ResourceNotFoundError(RuntimeError):
+        """Raised when a matching resource ID can't be found in the database"""
 
         def __init__(self, resource_id: str):
             super().__init__(
@@ -55,7 +55,7 @@ class QueryHandlerPort(ABC):
         Raises:
             ClassNotConfiguredError - when the class_name parameter does not
                 match any configured class
-            AlreadyDeletedError - when the provided ID doesn't match any resource
+            ResourceNotFoundError - when the provided ID doesn't match any resource
                 found in the database.
         """
 

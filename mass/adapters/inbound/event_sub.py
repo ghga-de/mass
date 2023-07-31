@@ -98,7 +98,7 @@ class EventSubTranslator(EventSubscriberProtocol):
                 resource_id=validated_payload.accession,
                 class_name=validated_payload.class_name,
             )
-        except self._query_handler.AlreadyDeletedError:
+        except self._query_handler.ResourceNotFoundError:
             log.warning(DELETION_FAILED_LOG_MSG, validated_payload.accession)
         except self._query_handler.ClassNotConfiguredError:
             log.error(CLASS_NOT_CONFIGURED_LOG_MSG, validated_payload.class_name)
