@@ -70,13 +70,13 @@ async def search(
             skip=parameters.skip,
             limit=parameters.limit,
         )
-    except QueryHandlerPort.ClassNotConfiguredError as err:
+    except query_handler.ClassNotConfiguredError as err:
         raise HTTPException(
             status_code=422,
             detail="The specified class name is invalid. See "
             + "/rpc/search-options for a list of valid class names.",
         ) from err
-    except QueryHandlerPort.SearchError as err:
+    except query_handler.SearchError as err:
         raise HTTPException(
             status_code=500, detail="An error occurred during search operation"
         ) from err

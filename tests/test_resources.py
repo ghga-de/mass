@@ -19,7 +19,6 @@
 import pytest
 
 from mass.core import models
-from mass.ports.inbound.query_handler import QueryHandlerPort
 from tests.fixtures.config import get_config
 from tests.fixtures.joint import JointFixture
 
@@ -202,7 +201,7 @@ async def test_loading_non_configured_resource(joint_fixture: JointFixture):
         },
     )
 
-    with pytest.raises(QueryHandlerPort.ClassNotConfiguredError):
+    with pytest.raises(query_handler.ClassNotConfiguredError):
         await query_handler.load_resource(resource=resource, class_name="ThisWillBreak")
 
 
@@ -223,7 +222,7 @@ async def test_error_from_malformed_resource(joint_fixture: JointFixture):
 
     await query_handler.load_resource(resource=resource, class_name="DatasetEmbedded")
 
-    with pytest.raises(QueryHandlerPort.SearchError):
+    with pytest.raises(query_handler.SearchError):
         await query_handler.handle_query(
             class_name="DatasetEmbedded", query="", filters=[]
         )
@@ -233,7 +232,7 @@ async def test_error_from_malformed_resource(joint_fixture: JointFixture):
 async def test_absent_resource(joint_fixture: JointFixture):
     """Make sure we get an error when looking for a resource type that doesn't exist"""
     query_handler = await joint_fixture.container.query_handler()
-    with pytest.raises(QueryHandlerPort.ClassNotConfiguredError):
+    with pytest.raises(query_handler.ClassNotConfiguredError):
         await query_handler.handle_query(
             class_name="does_not_exist", query="", filters=[]
         )
@@ -279,7 +278,7 @@ async def test_resource_deletion_failure(joint_fixture: JointFixture):
     assert all_resources.count > 0
 
     # try to delete a resource that doesn't exist
-    with pytest.raises(QueryHandlerPort.AlreadyDeletedError):
+    with pytest.raises(query_handler.AlreadyDeletedError):
         await query_handler.delete_resource(
             resource_id="not-here", class_name="DatasetEmbedded"
         )
@@ -297,7 +296,7 @@ async def test_resource_deletion_not_configured(joint_fixture: JointFixture):
     """Test for correct error when trying to delete a non-configured resource"""
     query_handler = await joint_fixture.container.query_handler()
 
-    with pytest.raises(QueryHandlerPort.ClassNotConfiguredError):
+    with pytest.raises(query_handler.ClassNotConfiguredError):
         await query_handler.delete_resource(
             resource_id="1HotelAlpha-id", class_name="Not-Configured"
         )
