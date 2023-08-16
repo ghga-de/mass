@@ -81,6 +81,8 @@ async def run_rest():
     """Run the server"""
     config = Config()
 
+    collection_init_and_index_creation(config)
+
     async with get_configured_container(config=config):
         api = get_rest_api(config=config)
         await run_server(app=api, config=config)
@@ -90,6 +92,8 @@ async def consume_events(run_forever: bool = True):
     """Run the event consumer"""
 
     config = Config()
+
+    collection_init_and_index_creation(config)
 
     async with get_configured_container(config=config) as container:
         event_subscriber = await container.event_subscriber()
