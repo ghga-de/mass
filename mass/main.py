@@ -33,7 +33,7 @@ def collection_init_and_index_creation(config: Config):
     """
 
     # get client
-    client = MongoClient(config.db_connection_str.get_secret_value())
+    client: MongoClient = MongoClient(config.db_connection_str.get_secret_value())
     db = client[config.db_name]
 
     expected_collections = list(config.searchable_classes.keys())
