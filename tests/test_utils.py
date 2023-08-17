@@ -14,12 +14,11 @@
 # limitations under the License.
 #
 
-"""Test utility functions, for now just the index creation"""
+"""Test index creation"""
 import pytest
 from pymongo import TEXT
 
 from mass.core import models
-from mass.main import collection_init_and_index_creation
 from mass.ports.inbound.query_handler import QueryHandlerPort
 from tests.fixtures.joint import JointFixture
 
@@ -31,108 +30,66 @@ RESOURCE = models.Resource(
 QUERY_STRING = "Backrub"
 
 
-async def initial_verification(query_handler: QueryHandlerPort):
-    """Convenience function to verify that the collection is empty"""
-
-    first_results = await query_handler.handle_query(
-        class_name=CLASS_NAME,
-        query="",
-        filters=[],
-    )
-
-    assert first_results.count == 0
-
-
-@pytest.mark.parametrize("preexisting_collection", [True, False])
-@pytest.mark.parametrize("load_resource", [True, False])
+@pytest.mark.parametrize("create_index_manually", (False, True))
 @pytest.mark.asyncio
-async def test_index_creation(
-    joint_fixture: JointFixture,
-    preexisting_collection: bool,
-    load_resource: bool,
-):
-    """Test the index creation function.
+async def test_index_creation(joint_fixture: JointFixture, create_index_manually: bool):
+    """Test the index creation function."""
+    # verify collection does not exist yet
+    database = joint_fixture.mongodb.client[joint_fixture.config.db_name]
+    assert CLASS_NAME not in database.list_collection_names()
 
-    Parameters exist to make sure the function works when there:
-     1. is and is not an existing collection
-     2. is and is not an index already created
-
-    Also checks that queries will work when the collection remains empty and when it has
-    resources loaded.
-    """
-
+    # make sure we do not get an error when trying to query non-existent collection
     query_handler: QueryHandlerPort = await joint_fixture.container.query_handler()
-
-    await initial_verification(query_handler)
-
-    if preexisting_collection:
-        joint_fixture.mongodb.client[joint_fixture.config.db_name].create_collection(
-            CLASS_NAME
-        )
-
-    # verify that we get an error when searching query string
-    with pytest.raises(QueryHandlerPort.SearchError):
-        await query_handler.handle_query(
-            class_name=CLASS_NAME,
-            query=QUERY_STRING,
-            filters=[],
-        )
-
-    # create indexes
-    collection_init_and_index_creation(joint_fixture.config)
-
-    # load a resource
-    if load_resource:
-        await query_handler.load_resource(resource=RESOURCE, class_name=CLASS_NAME)
-
-    # verify that supplying a query string doesn't result in an error
-    results = await query_handler.handle_query(
+    results_without_coll = await query_handler.handle_query(
         class_name=CLASS_NAME,
         query=QUERY_STRING,
         filters=[],
     )
+    # should have received empty results model
+    assert results_without_coll == models.QueryResults()
 
-    assert results.count == int(load_resource)
-
-
-@pytest.mark.asyncio
-async def test_with_preexisting_index(joint_fixture: JointFixture):
-    """Make sure the index creation function doesn't break if an index already exists"""
-    query_handler: QueryHandlerPort = await joint_fixture.container.query_handler()
-
-    await initial_verification(query_handler)
-
-    # verify that we get an error when searching query string
-    with pytest.raises(QueryHandlerPort.SearchError):
-        await query_handler.handle_query(
-            class_name=CLASS_NAME,
-            query=QUERY_STRING,
-            filters=[],
-        )
-
-    # create an index
-    joint_fixture.mongodb.client[joint_fixture.config.db_name][CLASS_NAME].create_index(
-        [("$**", TEXT)]
+    # create collection without index
+    joint_fixture.mongodb.client[joint_fixture.config.db_name].create_collection(
+        CLASS_NAME
     )
 
-    # verify that we DO NOT get an error when searching query string
-    await query_handler.handle_query(
+    # verify collection exists
+    assert CLASS_NAME in database.list_collection_names()
+
+    collection = database[CLASS_NAME]
+
+    # verify collection does not have the text index
+    assert not any(
+        index["name"] == f"$**_{TEXT}" for index in collection.list_indexes()
+    )
+
+    # Verify querying empty collection with query string gives empty results model
+    results_without_coll = await query_handler.handle_query(
         class_name=CLASS_NAME,
         query=QUERY_STRING,
         filters=[],
     )
+    assert results_without_coll == models.QueryResults()
 
-    # call the index creation function
-    collection_init_and_index_creation(joint_fixture.config)
+    if create_index_manually:
+        # check that the index creation function works when an index is already present
+        collection.create_index([("$**", TEXT)])
+        assert any(
+            index["name"] == f"$**_{TEXT}" for index in collection.list_indexes()
+        )
 
     # load a resource
     await query_handler.load_resource(resource=RESOURCE, class_name=CLASS_NAME)
 
+    # verify the text index exists now
+    assert any(index["name"] == f"$**_{TEXT}" for index in collection.list_indexes())
+
     # verify that supplying a query string doesn't result in an error
-    results = await query_handler.handle_query(
+    results_with_coll = await query_handler.handle_query(
         class_name=CLASS_NAME,
         query=QUERY_STRING,
         filters=[],
     )
 
-    assert results.count == 1
+    assert results_with_coll.count == 1
+    assert results_with_coll.hits[0] == RESOURCE
