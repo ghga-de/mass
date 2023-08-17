@@ -16,42 +16,10 @@
 """Top-level functionality for the microservice"""
 from fastapi import FastAPI
 from ghga_service_commons.api import configure_app, run_server
-from pymongo import TEXT, MongoClient
 
 from mass.adapters.inbound.fastapi_.routes import router
 from mass.config import Config
 from mass.container import Container
-
-
-def collection_init_and_index_creation(config: Config):
-    """Creates `MongoDB` collections and indexes.
-
-    Creates collections for all configured classes in `searchable_classes` if they don't
-    already exist. At the same time, it will also create the text index if it doesn't
-    already exist. This is primarily needed because the text index has to exist in order
-    to perform query string searches.
-    """
-
-    # get client
-    client: MongoClient = MongoClient(config.db_connection_str.get_secret_value())
-    db = client[config.db_name]
-
-    expected_collections = list(config.searchable_classes.keys())
-    existing_collections = db.list_collection_names()
-
-    # loop through configured classes (i.e. the expected collection names)
-    for collection_name in expected_collections:
-        if collection_name not in existing_collections:
-            db.create_collection(collection_name)
-        collection = db[collection_name]
-
-        # see if the wildcard text index exists and add it if not
-        wildcard_text_index_exists = any(
-            index["key"] == {"$**": "text"} for index in collection.list_indexes()
-        )
-
-        if not wildcard_text_index_exists:
-            collection.create_index([("$**", TEXT)])
 
 
 def get_configured_container(*, config: Config) -> Container:
@@ -81,8 +49,6 @@ async def run_rest():
     """Run the server"""
     config = Config()
 
-    collection_init_and_index_creation(config)
-
     async with get_configured_container(config=config):
         api = get_rest_api(config=config)
         await run_server(app=api, config=config)
@@ -92,8 +58,6 @@ async def consume_events(run_forever: bool = True):
     """Run the event consumer"""
 
     config = Config()
-
-    collection_init_and_index_creation(config)
 
     async with get_configured_container(config=config) as container:
         event_subscriber = await container.event_subscriber()

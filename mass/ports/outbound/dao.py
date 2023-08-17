@@ -39,3 +39,13 @@ class DaoCollectionPort(ABC):
             A DAO for the specified resource (ResourceDaoPort)
         """
         ...
+
+    def collection_init_and_index_creation(self) -> None:
+        """Creates `MongoDB` collections and indexes.
+
+        Creates collections for all configured classes in `searchable_classes` if they don't
+        already exist. At the same time, it will also create the text index if it doesn't
+        already exist. This is primarily needed because the text index has to exist in order
+        to perform query string searches.
+        """
+        ...
