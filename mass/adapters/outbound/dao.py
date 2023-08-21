@@ -97,5 +97,6 @@ class DaoCollection(DaoCollectionPort):
             if not wildcard_text_index_exists:
                 collection.create_index([("$**", TEXT)])
 
-        # remember that the indexes have been set up
+        # close client and remember that the indexes have been set up
+        client.close()
         self._indexes_created = True
