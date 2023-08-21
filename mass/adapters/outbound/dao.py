@@ -80,14 +80,13 @@ class DaoCollection(DaoCollectionPort):
         )
         db = client[self._config.db_name]
 
-        expected_collections = list(self._config.searchable_classes)
-        existing_collections = db.list_collection_names()
+        existing_collections = set(db.list_collection_names())
 
         # loop through configured classes (i.e. the expected collection names)
-        for collection_name in expected_collections:
-            if collection_name not in existing_collections:
-                db.create_collection(collection_name)
-            collection = db[collection_name]
+        for expected_collection_name in self._config.searchable_classes:
+            if expected_collection_name not in existing_collections:
+                db.create_collection(expected_collection_name)
+            collection = db[expected_collection_name]
 
             # see if the wildcard text index exists and add it if not
             wildcard_text_index_exists = any(
