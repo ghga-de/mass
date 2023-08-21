@@ -45,7 +45,7 @@ class QueryHandler(QueryHandlerPort):
         if class_name not in self._config.searchable_classes:
             raise self.ClassNotConfiguredError(class_name=class_name)
 
-        self._dao_collection.collection_init_and_index_creation()
+        self._dao_collection.create_collections_and_indexes_if_needed()
 
         dao = self._dao_collection.get_dao(class_name=class_name)
 

@@ -56,6 +56,7 @@ class DaoCollection(DaoCollectionPort):
         """Initialize the collection of DAOs"""
         self._config = config
         self._resource_daos = resource_daos
+        self._indexes_created = False
 
     def get_dao(self, *, class_name: str) -> ResourceDao:
         """returns a dao for the given resource class name
@@ -68,7 +69,11 @@ class DaoCollection(DaoCollectionPort):
         except KeyError as err:
             raise DaoNotFoundError(class_name=class_name) from err
 
-    def collection_init_and_index_creation(self) -> None:
+    def create_collections_and_indexes_if_needed(self) -> None:
+        # This only needs to be done once, so exit if we've already created the indexes
+        if self._indexes_created:
+            return
+
         # get client
         client: MongoClient = MongoClient(
             self._config.db_connection_str.get_secret_value()
@@ -91,3 +96,6 @@ class DaoCollection(DaoCollectionPort):
 
             if not wildcard_text_index_exists:
                 collection.create_index([("$**", TEXT)])
+
+        # remember that the indexes have been set up
+        self._indexes_created = True

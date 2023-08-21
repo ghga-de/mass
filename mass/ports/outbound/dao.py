@@ -40,7 +40,7 @@ class DaoCollectionPort(ABC):
         """
         ...
 
-    def collection_init_and_index_creation(self) -> None:
+    def create_collections_and_indexes_if_needed(self) -> None:
         """Creates `MongoDB` collections and indexes.
 
         Creates collections for all configured classes in `searchable_classes` if they don't
