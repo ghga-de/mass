@@ -19,7 +19,6 @@ import pytest
 from pymongo import TEXT
 
 from mass.core import models
-from mass.ports.inbound.query_handler import QueryHandlerPort
 from tests.fixtures.joint import JointFixture
 
 CLASS_NAME = "EmptyCollection"
@@ -34,12 +33,21 @@ QUERY_STRING = "Backrub"
 @pytest.mark.asyncio
 async def test_index_creation(joint_fixture: JointFixture, create_index_manually: bool):
     """Test the index creation function."""
-    # verify collection does not exist yet
+    # indexes will have been created in fixture setup, so we actually need to del those
+    joint_fixture.remove_db_data()
+
+    # verify collection does not exist
     database = joint_fixture.mongodb.client[joint_fixture.config.db_name]
     assert CLASS_NAME not in database.list_collection_names()
 
+    query_handler = await joint_fixture.container.query_handler()
+
+    # reset the flag so it actually runs the indexing function
+    query_handler._dao_collection._indexes_created = (
+        False  # pylint: disable=protected-access
+    )
+
     # make sure we do not get an error when trying to query non-existent collection
-    query_handler: QueryHandlerPort = await joint_fixture.container.query_handler()
     results_without_coll = await query_handler.handle_query(
         class_name=CLASS_NAME,
         query=QUERY_STRING,
