@@ -71,6 +71,7 @@ class QueryHandler(QueryHandlerPort):
         filters: list[models.Filter],
         skip: int = 0,
         limit: Optional[int] = None,
+        sorting_parameters: list[models.SortingParameter],
     ) -> models.QueryResults:
         # get configured facet fields for given resource class
         try:
@@ -89,6 +90,7 @@ class QueryHandler(QueryHandlerPort):
                 facet_fields=facet_fields,
                 skip=skip,
                 limit=limit,
+                sorting_parameters=sorting_parameters,
             )
         except AggregationError as exc:
             raise self.SearchError() from exc

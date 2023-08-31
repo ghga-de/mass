@@ -115,6 +115,9 @@ def build_pipeline(
     facet_fields: list[models.FacetLabel],
     skip: int = 0,
     limit: Optional[int] = None,
+    sorting_parameters: list[  # pylint: disable=unused-argument
+        models.SortingParameter
+    ],
 ) -> list[JsonObject]:
     """Build aggregation pipeline based on query"""
     pipeline: list[JsonObject] = []
