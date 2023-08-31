@@ -71,8 +71,12 @@ class QueryHandler(QueryHandlerPort):
         filters: list[models.Filter],
         skip: int = 0,
         limit: Optional[int] = None,
-        sorting_parameters: list[models.SortingParameter],
+        sorting_parameters: Optional[list[models.SortingParameter]] = None,
     ) -> models.QueryResults:
+        # set empty list if not provided
+        if sorting_parameters is None:
+            sorting_parameters = []
+
         # if id_ is not in sorting_parameters, add to end
         if "id_" not in [param.sort_field for param in sorting_parameters]:
             sorting_parameters.append(
