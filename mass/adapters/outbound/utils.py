@@ -115,9 +115,7 @@ def build_pipeline(
     facet_fields: list[models.FacetLabel],
     skip: int = 0,
     limit: Optional[int] = None,
-    sorting_parameters: list[  # pylint: disable=unused-argument
-        models.SortingParameter
-    ],
+    sorting_parameters: list[models.SortingParameter],
 ) -> list[JsonObject]:
     """Build aggregation pipeline based on query"""
     pipeline: list[JsonObject] = []
@@ -128,7 +126,9 @@ def build_pipeline(
         pipeline.append(pipeline_match_text_search(query=query))
 
     # sort initial results
-    pipeline.append({"$sort": {"_id": 1}})
+    pipeline.append(
+        {"$sort": {param.sort_field: param.sort_order for param in sorting_parameters}}
+    )
 
     # apply filters
     if filters:
