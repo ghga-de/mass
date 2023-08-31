@@ -73,6 +73,14 @@ class QueryHandler(QueryHandlerPort):
         limit: Optional[int] = None,
         sorting_parameters: list[models.SortingParameter],
     ) -> models.QueryResults:
+        # if id_ is not in sorting_parameters, add to end
+        if "id_" not in [param.sort_field for param in sorting_parameters]:
+            sorting_parameters.append(
+                models.SortingParameter(
+                    sort_field="id_", sort_order=models.SortOrder.ASCENDING
+                )
+            )
+
         # get configured facet fields for given resource class
         try:
             facet_fields: list[models.FacetLabel] = self._config.searchable_classes[
