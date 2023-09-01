@@ -16,7 +16,7 @@
 """Models only used by the API"""
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from mass.core.models import Filter, SortingParameter, SortOrder
 
@@ -41,3 +41,11 @@ class SearchParameters(BaseModel):
         default=[SortingParameter(sort_field="id_", sort_order=SortOrder.ASCENDING)],
         description=("Collection of sorting parameters used to refine search results"),
     )
+
+    @validator("sorting_parameters")
+    @classmethod
+    def no_duplicate_fields(cls, parameters: list[SortingParameter]):
+        """Check for duplicate fields in sorting parameters"""
+        all_sort_fields = [param.sort_field for param in parameters]
+        if len(set(all_sort_fields)) < len(all_sort_fields):
+            raise ValueError("Sorting parameters cannot contain duplicate fields")
