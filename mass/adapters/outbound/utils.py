@@ -53,8 +53,12 @@ def pipeline_match_filters_stage(*, filters: list[models.Filter]) -> JsonObject:
     return {"$match": segment}
 
 
-def pipeline_apply_facets(
-    *, facet_fields: list[models.FacetLabel], skip: int, limit: Optional[int] = None
+def pipeline_facet_sort_and_paginate(
+    *,
+    facet_fields: list[models.FacetLabel],
+    skip: int,
+    limit: Optional[int] = None,
+    sorts: JsonObject,
 ):
     """Uses a list of facetable property names to build the subquery for faceting"""
     segment: dict[str, list[JsonObject]] = {}
@@ -80,9 +84,9 @@ def pipeline_apply_facets(
 
     # sort by ID, then rename the ID field to id_ to match our model
     segment["hits"] = [
-        {"$sort": {"_id": 1}},
         {"$addFields": {"id_": "$_id"}},
         {"$unset": "_id"},
+        {"$sort": sorts},
     ]
 
     # apply skip and limit for pagination
@@ -125,20 +129,22 @@ def build_pipeline(
     if query:
         pipeline.append(pipeline_match_text_search(query=query))
 
-    # sort initial results
-    pipeline.append(
-        {"$sort": {param.sort_field: param.sort_order for param in sorting_parameters}}
-    )
-
     # apply filters
     if filters:
         pipeline.append(pipeline_match_filters_stage(filters=filters))
 
+    # turn the sorting parameters into a formatted pipeline $sort
+    sorts = {param.sort_field: param.sort_order for param in sorting_parameters}
+
     # define facets from preliminary results and reshape data
-    if facet_fields:
-        pipeline.append(
-            pipeline_apply_facets(facet_fields=facet_fields, skip=skip, limit=limit)
+    pipeline.append(
+        pipeline_facet_sort_and_paginate(
+            facet_fields=facet_fields,
+            skip=skip,
+            limit=limit,
+            sorts=sorts,
         )
+    )
 
     # transform data one more time to match models
     pipeline.append(pipeline_project(facet_fields=facet_fields))
