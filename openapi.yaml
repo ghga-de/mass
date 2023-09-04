@@ -161,8 +161,8 @@ components:
           type: integer
         sorting_parameters:
           default:
-          - sort_field: id_
-            sort_order: 1
+          - field: id_
+            order: ascending
           description: Collection of sorting parameters used to refine search results
           items:
             $ref: '#/components/schemas/SortingParameter'
@@ -193,24 +193,23 @@ components:
     SortOrder:
       description: Represents the possible sorting orders
       enum:
-      - 1
-      - -1
+      - ascending
+      - descending
       title: SortOrder
-      type: integer
     SortingParameter:
       description: Represents a combination of a field to sort and the sort order
       properties:
-        sort_field:
+        field:
           description: Which field to sort results by.
-          title: Sort Field
+          title: Field
           type: string
-        sort_order:
+        order:
           allOf:
           - $ref: '#/components/schemas/SortOrder'
-          default: 1
+          default: ascending
           description: Sort order to apply to sort_field
       required:
-      - sort_field
+      - field
       title: SortingParameter
       type: object
     ValidationError:
