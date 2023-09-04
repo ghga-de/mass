@@ -74,8 +74,8 @@ async def test_sort_with_id_not_last(joint_fixture: JointFixture):
     any bugs that will break the sort or query process.
     """
     sorts = [
-        {"field": "id_", "order": models.SortOrder.ASCENDING.value},
-        {"field": "field", "order": models.SortOrder.DESCENDING.value},
+        {"field": "id_", "order": "ascending"},
+        {"field": "field", "order": "descending"},
     ]
     search_parameters: JsonObject = {
         "class_name": CLASS_NAME,
@@ -84,7 +84,12 @@ async def test_sort_with_id_not_last(joint_fixture: JointFixture):
         "sorting_parameters": sorts,
     }
 
-    sorts_in_model_form = [models.SortingParameter(**param) for param in sorts]
+    sorts_in_model_form = [
+        models.SortingParameter(
+            field=param["field"], order=models.SortOrder(param["order"])
+        )
+        for param in sorts
+    ]
     results = await joint_fixture.call_search_endpoint(search_parameters)
     assert results.hits == sort_resources(results.hits, sorts_in_model_form)
 
