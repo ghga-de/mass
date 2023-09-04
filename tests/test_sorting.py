@@ -23,7 +23,7 @@ from tests.fixtures.joint import JointFixture
 
 CLASS_NAME = "SortingTests"
 BASIC_SORT_PARAMETERS = [
-    models.SortingParameter(sort_field="id_", sort_order=models.SortOrder.ASCENDING)
+    models.SortingParameter(field="id_", order=models.SortOrder.ASCENDING)
 ]
 
 
@@ -34,14 +34,14 @@ def sort_resources(
     sorted_list = resources.copy()
 
     for parameter in sorts:
-        reverse = True if parameter.sort_order == -1 else False
+        reverse = True if parameter.order == models.SortOrder.DESCENDING else False
 
-        if parameter.sort_field == "id_":
+        if parameter.field == "id_":
             sorted_list.sort(key=lambda resource: resource.id_, reverse=reverse)
         else:
             # all other fields will be contained within 'content'.
             sorted_list.sort(
-                key=lambda resource: resource.dict()["content"][parameter.sort_field],
+                key=lambda resource: resource.dict()["content"][parameter.field],
                 reverse=reverse,
             )
 
@@ -74,8 +74,8 @@ async def test_sort_with_id_not_last(joint_fixture: JointFixture):
     any bugs that will break the sort or query process.
     """
     sorts = [
-        {"sort_field": "id_", "sort_order": 1},
-        {"sort_field": "field", "sort_order": -1},
+        {"field": "id_", "order": models.SortOrder.ASCENDING.value},
+        {"field": "field", "order": models.SortOrder.DESCENDING.value},
     ]
     search_parameters: JsonObject = {
         "class_name": CLASS_NAME,
@@ -102,7 +102,9 @@ async def test_sort_with_params_but_not_id(joint_fixture: JointFixture):
         "class_name": CLASS_NAME,
         "query": "",
         "filters": [],
-        "sorting_parameters": [{"sort_field": "field", "sort_order": 1}],
+        "sorting_parameters": [
+            {"field": "field", "order": models.SortOrder.ASCENDING.value}
+        ],
     }
 
     results = await joint_fixture.call_search_endpoint(search_parameters)
@@ -122,22 +124,27 @@ async def test_sort_with_invalid_field(joint_fixture: JointFixture):
         "class_name": CLASS_NAME,
         "query": "",
         "filters": [],
-        "sorting_parameters": [{"sort_field": "some_bogus_field", "sort_order": 1}],
+        "sorting_parameters": [
+            {
+                "field": "some_bogus_field",
+                "order": models.SortOrder.ASCENDING.value,
+            }
+        ],
     }
 
     results = await joint_fixture.call_search_endpoint(search_parameters)
     assert results.hits == sort_resources(results.hits, BASIC_SORT_PARAMETERS)
 
 
-@pytest.mark.parametrize("sort_order", [-7, 17, "some_string"])
+@pytest.mark.parametrize("order", [-7, 17, "some_string"])
 @pytest.mark.asyncio
-async def test_sort_with_invalid_sort_order(joint_fixture: JointFixture, sort_order):
+async def test_sort_with_invalid_sort_order(joint_fixture: JointFixture, order):
     """Test supplying an invalid value for the sort order"""
     search_parameters: JsonObject = {
         "class_name": CLASS_NAME,
         "query": "",
         "filters": [],
-        "sorting_parameters": [{"sort_field": "field", "sort_order": sort_order}],
+        "sorting_parameters": [{"field": "field", "order": order}],
     }
 
     response = await joint_fixture.rest_client.post(
@@ -153,7 +160,7 @@ async def test_sort_with_invalid_field_and_sort_order(joint_fixture: JointFixtur
         "class_name": CLASS_NAME,
         "query": "",
         "filters": [],
-        "sorting_parameters": [{"sort_field": "some_bogus_field", "sort_order": -7}],
+        "sorting_parameters": [{"field": "some_bogus_field", "order": -7}],
     }
 
     response = await joint_fixture.rest_client.post(
@@ -173,8 +180,8 @@ async def test_sort_with_duplicate_field(joint_fixture: JointFixture):
         "query": "",
         "filters": [],
         "sorting_parameters": [
-            {"sort_field": "field", "sort_order": 1},
-            {"sort_field": "field", "sort_order": 1},
+            {"field": "field", "order": models.SortOrder.ASCENDING.value},
+            {"field": "field", "order": models.SortOrder.DESCENDING.value},
         ],
     }
     response = await joint_fixture.rest_client.post(
