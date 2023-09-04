@@ -22,6 +22,8 @@ from hexkit.custom_types import JsonObject
 
 from mass.core import models
 
+SORT_ORDER_CONVERSION = {"ascending": 1, "descending": -1}
+
 
 def pipeline_match_text_search(*, query: str) -> JsonObject:
     """Build text search segment of aggregation pipeline"""

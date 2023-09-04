@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """Defines dataclasses for holding business-logic data"""
-from enum import IntEnum
+from enum import Enum
 
 from hexkit.custom_types import JsonObject
 from pydantic import BaseModel, Field
@@ -75,11 +75,11 @@ class QueryResults(BaseModel):
     hits: list[Resource] = Field(default=[], description="The search results")
 
 
-class SortOrder(IntEnum):
+class SortOrder(Enum):
     """Represents the possible sorting orders"""
 
-    ASCENDING = 1
-    DESCENDING = -1
+    ASCENDING = "ascending"
+    DESCENDING = "descending"
 
 
 class SortingParameter(BaseModel):
