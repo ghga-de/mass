@@ -136,7 +136,10 @@ def build_pipeline(
         pipeline.append(pipeline_match_filters_stage(filters=filters))
 
     # turn the sorting parameters into a formatted pipeline $sort
-    sorts = {param.sort_field: param.sort_order for param in sorting_parameters}
+    sorts = {}
+    for param in sorting_parameters:
+        sort_order = SORT_ORDER_CONVERSION[param.order.value]
+        sorts[param.field] = sort_order
 
     # define facets from preliminary results and reshape data
     pipeline.append(

@@ -85,10 +85,10 @@ class SortOrder(Enum):
 class SortingParameter(BaseModel):
     """Represents a combination of a field to sort and the sort order"""
 
-    sort_field: str = Field(
+    field: str = Field(
         ...,
         description=("Which field to sort results by."),
     )
-    sort_order: SortOrder = Field(
+    order: SortOrder = Field(
         default=SortOrder.ASCENDING, description="Sort order to apply to sort_field"
     )
