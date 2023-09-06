@@ -49,3 +49,4 @@ class SearchParameters(BaseModel):
         all_sort_fields = [param.field for param in parameters]
         if len(set(all_sort_fields)) < len(all_sort_fields):
             raise ValueError("Sorting parameters cannot contain duplicate fields")
+        return parameters
