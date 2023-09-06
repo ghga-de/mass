@@ -22,7 +22,11 @@ from hexkit.custom_types import JsonObject
 
 from mass.core import models
 
-SORT_ORDER_CONVERSION = {"ascending": 1, "descending": -1}
+SORT_ORDER_CONVERSION: JsonObject = {
+    "ascending": 1,
+    "descending": -1,
+    "relevance": {"$meta": "textScore"},
+}
 
 
 def pipeline_match_text_search(*, query: str) -> JsonObject:
