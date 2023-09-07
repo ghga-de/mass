@@ -61,7 +61,7 @@ async def test_api_without_search_parameters(joint_fixture: JointFixture):
     results = await joint_fixture.call_search_endpoint(
         search_parameters=search_parameters
     )
-    assert results.count >= 0
+    assert results.count > 0
     expected = sort_resources(results.hits, BASIC_SORT_PARAMETERS)
     assert results.hits == expected
 
