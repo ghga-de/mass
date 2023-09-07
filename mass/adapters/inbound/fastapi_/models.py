@@ -18,7 +18,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, validator
 
-from mass.core.models import Filter, SortingParameter, SortOrder
+from mass.core.models import Filter, SortingParameter
 
 
 class SearchParameters(BaseModel):
@@ -38,7 +38,7 @@ class SearchParameters(BaseModel):
         default=None, description="Limit the results to this number"
     )
     sorting_parameters: list[SortingParameter] = Field(
-        default=[SortingParameter(field="id_", order=SortOrder.ASCENDING)],
+        default=[],
         description=("Collection of sorting parameters used to refine search results"),
     )
 
