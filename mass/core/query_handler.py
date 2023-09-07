@@ -74,7 +74,7 @@ class QueryHandler(QueryHandlerPort):
         sorting_parameters: Optional[list[models.SortingParameter]] = None,
     ) -> models.QueryResults:
         # set empty list if not provided
-        if sorting_parameters is None:
+        if not sorting_parameters:
             if query:
                 sorting_parameters = [
                     models.SortingParameter(
