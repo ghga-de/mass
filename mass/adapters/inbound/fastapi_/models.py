@@ -44,7 +44,9 @@ class SearchParameters(BaseModel):
 
     @validator("sorting_parameters")
     @classmethod
-    def no_duplicate_fields(cls, parameters: list[SortingParameter]):
+    def no_duplicate_fields(
+        cls, parameters: list[SortingParameter]
+    ) -> list[SortingParameter]:
         """Check for duplicate fields in sorting parameters"""
         all_sort_fields = [param.field for param in parameters]
         if len(set(all_sort_fields)) < len(all_sort_fields):
