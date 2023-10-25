@@ -18,7 +18,7 @@
 from pathlib import Path
 from typing import Optional
 
-from pydantic.env_settings import BaseSettings
+from pydantic_settings import BaseSettings
 
 from mass.config import Config
 from tests.fixtures.utils import BASE_DIR
