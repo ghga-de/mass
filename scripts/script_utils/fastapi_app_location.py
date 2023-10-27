@@ -16,10 +16,10 @@
 
 """Used to define the location of the main FastAPI app object."""
 
-# flake8: noqa
-# pylint: skip-file
 
-from mass.config import Config
-from mass.main import get_rest_api
+from fastapi import FastAPI
 
-app = get_rest_api(config=Config())  # type: ignore[call-arg]
+from mass.adapters.inbound.fastapi_.routes import router
+
+app = FastAPI()
+app.include_router(router)
