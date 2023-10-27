@@ -69,7 +69,7 @@ async def prepare_rest_app(
 ) -> AsyncGenerator[FastAPI, None]:
     """Construct and initialize an REST API app along with all its dependencies.
     By default, the core dependencies are automatically prepared but you can also
-    provide them using the data_repo_override parameter.
+    provide them using the query_handler_override parameter.
     """
     app = get_configured_app(config=config)
 
@@ -89,7 +89,7 @@ async def prepare_event_subscriber(
 ) -> AsyncGenerator[KafkaEventSubscriber, None]:
     """Construct and initialize an event subscriber with all its dependencies.
     By default, the core dependencies are automatically prepared but you can also
-    provide them using the data_repo_override parameter.
+    provide them using the query_handler_override parameter.
     """
     async with prepare_core_with_override(
         config=config, query_handler_override=query_handler_override
