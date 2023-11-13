@@ -37,10 +37,12 @@ from mass.ports.inbound.query_handler import QueryHandlerPort
 async def prepare_core(*, config: Config) -> AsyncGenerator[QueryHandlerPort, None]:
     """Constructs and initializes all core components and their outbound dependencies."""
     dao_factory = MongoDbDaoFactory(config=config)
-    dao_collection = await DaoCollection.construct(dao_factory, config)
+    dao_collection = await DaoCollection.construct(
+        dao_factory=dao_factory, config=config
+    )
     aggregator_factory = AggregatorFactory(config=config)
     aggregator_collection = await AggregatorCollection.construct(
-        aggregator_factory, config
+        aggregator_factory=aggregator_factory, config=config
     )
 
     yield QueryHandler(
