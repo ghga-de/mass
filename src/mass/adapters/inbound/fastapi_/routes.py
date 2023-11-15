@@ -86,7 +86,7 @@ async def search(
     except (query_handler.SearchError, query_handler.ValidationError) as err:
         log.error("Search operation error: %s", err)
         raise HTTPException(
-            status_code=500, detail="An error occurred during search operation"
+            status_code=500, detail="An error occurred during the search operation"
         ) from err
 
     return results

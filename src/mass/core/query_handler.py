@@ -37,7 +37,7 @@ class QueryHandler(QueryHandlerPort):
         aggregator_collection: AggregatorCollectionPort,
         dao_collection: DaoCollectionPort,
     ):
-        """Initialize the query handler with resource daos/aggregators"""
+        """Initialize the query handler with resource DAOs/aggregators"""
         self._config = config
         self._aggregator_collection = aggregator_collection
         self._dao_collection = dao_collection

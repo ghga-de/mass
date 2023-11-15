@@ -16,8 +16,10 @@
 
 """Tests to assess API functionality"""
 
+import logging
 from typing import Optional
 
+import httpx
 import pytest
 from hexkit.custom_types import JsonObject
 
@@ -72,7 +74,9 @@ async def test_search_options(joint_fixture: JointFixture):
 
 
 @pytest.mark.asyncio
-async def test_malformed_document(joint_fixture: JointFixture):
+async def test_malformed_document(
+    joint_fixture: JointFixture, caplog: pytest.LogCaptureFixture
+):
     """Test behavior from API perspective upon querying when bad doc exists"""
     joint_fixture.remove_db_data()
 
@@ -96,10 +100,21 @@ async def test_malformed_document(joint_fixture: JointFixture):
         "skip": 0,
     }
 
-    response = await joint_fixture.rest_client.post(
-        url="/rpc/search", json=search_parameters
-    )
-    assert response.status_code == 500
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(
+            httpx.HTTPStatusError, match="500 Internal Server Error"
+        ) as exc_info:
+            await joint_fixture.call_search_endpoint(search_parameters)
+        assert (
+            exc_info.value.response.json().get("detail")
+            == "An error occurred during the search operation"
+        )
+        assert len(caplog.records) == 1
+        assert (
+            caplog.records[0].message == "Search operation error:"
+            " A subset of the query results does not conform"
+            " to the expected results model schema."
+        )
 
 
 @pytest.mark.asyncio
@@ -184,7 +199,19 @@ async def test_search_invalid_class(joint_fixture: JointFixture):
         "limit": 1,
     }
 
-    response = await joint_fixture.rest_client.post(
-        url="/rpc/search", json=search_parameters
-    )
-    assert response.status_code == 422
+    with pytest.raises(httpx.HTTPStatusError, match="422 Unprocessable Entity"):
+        await joint_fixture.call_search_endpoint(search_parameters)
+
+
+@pytest.mark.asyncio
+async def test_search_keywords_when_index_was_deleted(joint_fixture: JointFixture):
+    """Make sure the index is recreated on the fly when it was deleted"""
+    search_parameters: JsonObject = {
+        "class_name": "DatasetEmbedded",
+        "query": "hotel",
+        "filters": [],
+        "skip": 0,
+    }
+
+    results = await joint_fixture.call_search_endpoint(search_parameters)
+    compare(results=results, count=2, hit_length=2)
