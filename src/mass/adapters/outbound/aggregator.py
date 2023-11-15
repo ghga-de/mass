@@ -94,7 +94,7 @@ class AggregatorFactory:
     def __init__(self, *, config: MongoDbConfig):
         """Initialize the factory with the DB config information"""
         self._config = config
-        self._client = AsyncIOMotorClient(
+        self._client = AsyncIOMotorClient(  # type: ignore[var-annotated]
             self._config.db_connection_str.get_secret_value()
         )
         self._db = self._client[self._config.db_name]
