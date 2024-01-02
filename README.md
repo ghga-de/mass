@@ -1,4 +1,3 @@
-
 [![tests](https://github.com/ghga-de/mass/actions/workflows/tests.yaml/badge.svg)](https://github.com/ghga-de/mass/actions/workflows/tests.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/ghga-de/mass/badge.svg?branch=main)](https://coveralls.io/github/ghga-de/mass?branch=main)
 
@@ -8,23 +7,9 @@ Metadata Artifact Search Service  - A service for searching metadata artifacts a
 
 ## Description
 
-The Metadata Artifact Search Service uses search parameters to look for metadata.
+<!-- Please provide a short overview of the features of this service. -->
 
-### Quick Overview of API
-There are two available API endpoints that follow the RPC pattern (not REST):
-One endpoint ("GET /rpc/search-options") will return an overview of all metadata classes that can be targeted
-by a search. The actual search endpoint ("POST /rpc/search") can be used to search for these target classes using keywords. Hits will be reported in the context of the selected target class.
-This means that target classes will be reported that match the specified search query,
-however, the target class might contain embedded other classes and the match might
-occur in these embedded classes, too.
-
-Along with the hits, facet options are reported that can be used to filter down the hits by
-performing the same search query again but with specific facet selections being set.
-
-The search endpoint supports pagination to deal with large hit lists. Facet options can
-help avoid having to rely on this feature by filtering down the number of hits to a single page.
-
-For more information see the OpenAPI spec linked below.
+Here you should provide a short summary of the purpose of this microservice.
 
 
 ## Installation
@@ -33,13 +18,13 @@ We recommend using the provided Docker container.
 
 A pre-build version is available at [docker hub](https://hub.docker.com/repository/docker/ghga/mass):
 ```bash
-docker pull ghga/mass:1.0.1
+docker pull ghga/mass:2.0.0
 ```
 
 Or you can build the container yourself from the [`./Dockerfile`](./Dockerfile):
 ```bash
 # Execute in the repo's root dir:
-docker build -t ghga/mass:1.0.1 .
+docker build -t ghga/mass:2.0.0 .
 ```
 
 For production-ready deployment, we recommend using Kubernetes, however,
@@ -47,7 +32,7 @@ for simple use cases, you could execute the service using docker
 on a single server:
 ```bash
 # The entrypoint is preconfigured:
-docker run -p 8080:8080 ghga/mass:1.0.1 --help
+docker run -p 8080:8080 ghga/mass:2.0.0 --help
 ```
 
 If you prefer not to use containers, you may install the service from source:
@@ -126,13 +111,28 @@ The service requires the following configuration parameters:
 
 - **`kafka_security_protocol`** *(string)*: Protocol used to communicate with brokers. Valid values are: PLAINTEXT, SSL. Must be one of: `["PLAINTEXT", "SSL"]`. Default: `"PLAINTEXT"`.
 
-- **`kafka_ssl_cafile`** *(string)*: Certificate Authority file path containing certificates used to sign broker certificates. If a CA not specified, the default system CA will be used if found by OpenSSL. Default: `""`.
+- **`kafka_ssl_cafile`** *(string)*: Certificate Authority file path containing certificates used to sign broker certificates. If a CA is not specified, the default system CA will be used if found by OpenSSL. Default: `""`.
 
 - **`kafka_ssl_certfile`** *(string)*: Optional filename of client certificate, as well as any CA certificates needed to establish the certificate's authenticity. Default: `""`.
 
 - **`kafka_ssl_keyfile`** *(string)*: Optional filename containing the client private key. Default: `""`.
 
 - **`kafka_ssl_password`** *(string)*: Optional password to be used for the client private key. Default: `""`.
+
+- **`generate_correlation_id`** *(boolean)*: A flag, which, if False, will result in an error when inbound requests don't possess a correlation ID. If True, requests without a correlation ID will be assigned a newly generated ID in the correlation ID middleware function. Default: `true`.
+
+
+  Examples:
+
+  ```json
+  true
+  ```
+
+
+  ```json
+  false
+  ```
+
 
 - **`db_connection_str`** *(string, format: password)*: MongoDB connection string. Might include credentials. For more information see: https://naiveskill.com/mongodb-connection-string/.
 
@@ -157,8 +157,6 @@ The service requires the following configuration parameters:
 - **`host`** *(string)*: IP of the host. Default: `"127.0.0.1"`.
 
 - **`port`** *(integer)*: Port to expose the server on the specified host. Default: `8080`.
-
-- **`log_level`** *(string)*: Controls the verbosity of the log. Must be one of: `["critical", "error", "warning", "info", "debug", "trace"]`. Default: `"info"`.
 
 - **`auto_reload`** *(boolean)*: A development feature. Set to `True` to automatically reload the server upon code changes. Default: `false`.
 
@@ -284,21 +282,6 @@ the corresponding structure. -->
 This is a Python-based service following the Triple Hexagonal Architecture pattern.
 It uses protocol/provider pairs and dependency injection mechanisms provided by the
 [hexkit](https://github.com/ghga-de/hexkit) library.
-
-This service is currently designed to work with MongoDB and uses an aggregation pipeline to produce search results.
-
-Typical sequence of events is as follows:
-1. Requests are received by the API, then directed to the QueryHandler in the core.
-
-2. From there, the configuration is consulted to retrieve any facetable properties for the searched resource class.
-
-3. The search parameters and facet fields are passed to the Aggregator, which builds and runs the aggregation pipeline on the appropriate collection. The aggregation pipeline is a series of stages run in sequence:
-   - The first stage runs a text match using the query string.
-   - The second stage applies a sort based on the IDs.
-   - The third stage applies any filters supplied in the search parameters.
-   - The fourth stage extract facets.
-   - The fifth/final stage transforms the results structure into {facets, hits, hit count}.
-4. Once retrieved in the Aggregator, the results are passed back to the QueryHandler where they are shoved into a QueryResults pydantic model for validation before finally being sent back to the API.
 
 
 ## Development
