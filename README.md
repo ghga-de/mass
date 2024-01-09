@@ -51,7 +51,7 @@ mass --help
 The service requires the following configuration parameters:
 - **`searchable_classes`** *(object)*: A collection of searchable_classes with facetable properties. Can contain additional properties.
 
-  - **Additional Properties**: Refer to *[#/$defs/SearchableClass](#$defs/SearchableClass)*.
+  - **Additional properties**: Refer to *[#/$defs/SearchableClass](#%24defs/SearchableClass)*.
 
 - **`resource_change_event_topic`** *(string)*: Name of the event topic used to track resource deletion and upsertion events.
 
@@ -245,6 +245,23 @@ The service requires the following configuration parameters:
   []
   ```
 
+
+## Definitions
+
+
+- <a id="%24defs/FacetLabel"></a>**`FacetLabel`** *(object)*: Contains the key and corresponding user-friendly name for a facet.
+
+  - **`key`** *(string, required)*: The raw facet key, such as study.type.
+
+  - **`name`** *(string)*: The user-friendly name for the facet. Default: `""`.
+
+- <a id="%24defs/SearchableClass"></a>**`SearchableClass`** *(object)*: Represents a searchable artifact or resource type.
+
+  - **`description`** *(string, required)*: A brief description of the resource type.
+
+  - **`facetable_properties`** *(array, required)*: A list of of the facetable properties for the resource type.
+
+    - **Items**: Refer to *[#/$defs/FacetLabel](#%24defs/FacetLabel)*.
 
 
 ### Usage:
