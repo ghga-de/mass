@@ -1,5 +1,3 @@
-<!-- Please provide a short overview of the features of this service. -->
-
 The Metadata Artifact Search Service uses search parameters to look for metadata.
 
 ### Quick Overview of API
