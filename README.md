@@ -27,6 +27,7 @@ help avoid having to rely on this feature by filtering down the number of hits t
 
 For more information see the OpenAPI spec linked below.
 
+
 ## Installation
 
 We recommend using the provided Docker container.
@@ -64,6 +65,41 @@ mass --help
 ### Parameters
 
 The service requires the following configuration parameters:
+- **`log_level`** *(string)*: The minimum log level to capture. Must be one of: `["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "TRACE"]`. Default: `"INFO"`.
+
+- **`service_name`** *(string)*: Default: `"mass"`.
+
+- **`service_instance_id`** *(string)*: A string that uniquely identifies this instance across all instances of this service. A globally unique Kafka client ID will be created by concatenating the service_name and the service_instance_id.
+
+
+  Examples:
+
+  ```json
+  "germany-bw-instance-001"
+  ```
+
+
+- **`log_format`**: If set, will replace JSON formatting with the specified string format. If not set, has no effect. In addition to the standard attributes, the following can also be specified: timestamp, service, instance, level, correlation_id, and details. Default: `null`.
+
+  - **Any of**
+
+    - *string*
+
+    - *null*
+
+
+  Examples:
+
+  ```json
+  "%(timestamp)s - %(service)s - %(level)s - %(message)s"
+  ```
+
+
+  ```json
+  "%(asctime)s - Severity: %(levelno)s - %(msg)s"
+  ```
+
+
 - **`searchable_classes`** *(object)*: A collection of searchable_classes with facetable properties. Can contain additional properties.
 
   - **Additional properties**: Refer to *[#/$defs/SearchableClass](#%24defs/SearchableClass)*.
@@ -95,18 +131,6 @@ The service requires the following configuration parameters:
 
   ```json
   "searchable_resource_upserted"
-  ```
-
-
-- **`service_name`** *(string)*: Default: `"mass"`.
-
-- **`service_instance_id`** *(string)*: A string that uniquely identifies this instance across all instances of this service. A globally unique Kafka client ID will be created by concatenating the service_name and the service_instance_id.
-
-
-  Examples:
-
-  ```json
-  "germany-bw-instance-001"
   ```
 
 
@@ -329,6 +353,7 @@ Typical sequence of events is as follows:
    - The fourth stage extract facets.
    - The fifth/final stage transforms the results structure into {facets, hits, hit count}.
 4. Once retrieved in the Aggregator, the results are passed back to the QueryHandler where they are shoved into a QueryResults pydantic model for validation before finally being sent back to the API.
+
 
 ## Development
 
