@@ -7,8 +7,6 @@ Metadata Artifact Search Service  - A service for searching metadata artifacts a
 
 ## Description
 
-<!-- Please provide a short overview of the features of this service. -->
-
 The Metadata Artifact Search Service uses search parameters to look for metadata.
 
 ### Quick Overview of API
@@ -331,10 +329,6 @@ of the pydantic documentation.
 An OpenAPI specification for this service can be found [here](./openapi.yaml).
 
 ## Architecture and Design:
-<!-- Please provide an overview of the architecture and design of the code base.
-Mention anything that deviates from the standard triple hexagonal architecture and
-the corresponding structure. -->
-
 This is a Python-based service following the Triple Hexagonal Architecture pattern.
 It uses protocol/provider pairs and dependency injection mechanisms provided by the
 [hexkit](https://github.com/ghga-de/hexkit) library.
