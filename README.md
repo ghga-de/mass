@@ -9,8 +9,23 @@ Metadata Artifact Search Service  - A service for searching metadata artifacts a
 
 <!-- Please provide a short overview of the features of this service. -->
 
-Here you should provide a short summary of the purpose of this microservice.
+The Metadata Artifact Search Service uses search parameters to look for metadata.
 
+### Quick Overview of API
+There are two available API endpoints that follow the RPC pattern (not REST):
+One endpoint ("GET /rpc/search-options") will return an overview of all metadata classes that can be targeted
+by a search. The actual search endpoint ("POST /rpc/search") can be used to search for these target classes using keywords. Hits will be reported in the context of the selected target class.
+This means that target classes will be reported that match the specified search query,
+however, the target class might contain embedded other classes and the match might
+occur in these embedded classes, too.
+
+Along with the hits, facet options are reported that can be used to filter down the hits by
+performing the same search query again but with specific facet selections being set.
+
+The search endpoint supports pagination to deal with large hit lists. Facet options can
+help avoid having to rely on this feature by filtering down the number of hits to a single page.
+
+For more information see the OpenAPI spec linked below.
 
 ## Installation
 
@@ -300,6 +315,20 @@ This is a Python-based service following the Triple Hexagonal Architecture patte
 It uses protocol/provider pairs and dependency injection mechanisms provided by the
 [hexkit](https://github.com/ghga-de/hexkit) library.
 
+This service is currently designed to work with MongoDB and uses an aggregation pipeline to produce search results.
+
+Typical sequence of events is as follows:
+1. Requests are received by the API, then directed to the QueryHandler in the core.
+
+2. From there, the configuration is consulted to retrieve any facetable properties for the searched resource class.
+
+3. The search parameters and facet fields are passed to the Aggregator, which builds and runs the aggregation pipeline on the appropriate collection. The aggregation pipeline is a series of stages run in sequence:
+   - The first stage runs a text match using the query string.
+   - The second stage applies a sort based on the IDs.
+   - The third stage applies any filters supplied in the search parameters.
+   - The fourth stage extract facets.
+   - The fifth/final stage transforms the results structure into {facets, hits, hit count}.
+4. Once retrieved in the Aggregator, the results are passed back to the QueryHandler where they are shoved into a QueryResults pydantic model for validation before finally being sent back to the API.
 
 ## Development
 
