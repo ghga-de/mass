@@ -86,7 +86,7 @@ def sorted_reference_results(
     results = joint_fixture.mongodb.client[joint_fixture.config.db_name][
         CLASS_NAME
     ].find({"$text": {"$search": query}}, {"score": {"$meta": "textScore"}})
-    results = [x for x in results]
+    results = [x for x in results]  # type: ignore
 
     if filters:
         for f in filters:
@@ -95,11 +95,11 @@ def sorted_reference_results(
 
             # the only top-level fields are "_id" and "score" -- all else is in "content"
             if field in ("_id", "score"):
-                results = [x for x in results if x[field] == value]
+                results = [x for x in results if x[field] == value]  # type: ignore
             else:
-                results = [x for x in results if x["content"][field] == value]
+                results = [x for x in results if x["content"][field] == value]  # type: ignore
 
-    sorted_results = multi_column_sort(results, sorts)
+    sorted_results = multi_column_sort(results, sorts)  # type: ignore
 
     return [result["_id"] for result in sorted_results]
 

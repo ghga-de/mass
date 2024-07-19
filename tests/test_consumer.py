@@ -51,7 +51,7 @@ async def test_resource_upsert(
     # define a resource to be upserted
     resource = models.Resource(
         id_=resource_id,
-        content=content,
+        content=content,  # type: ignore
     )
 
     # put together event payload
