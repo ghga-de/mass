@@ -18,13 +18,23 @@
 from fastapi import FastAPI
 from ghga_service_commons.api import configure_app
 
+import mass
 from mass.adapters.inbound.fastapi_.routes import router
 from mass.config import Config
 
 
 def get_configured_app(*, config: Config) -> FastAPI:
     """Create and configure a REST API application."""
-    app = FastAPI()
+    doc = mass.__doc__
+    try:
+        title, description = mass.__doc__.split("\n\n", 1)
+    except ValueError:
+        title, description = doc, ""
+    title = title.strip()
+    description = description.strip()
+    version = mass.__version__
+
+    app = FastAPI(title=title, description=description, version=version)
     app.include_router(router)
     configure_app(app, config=config)
 

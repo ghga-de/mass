@@ -12,7 +12,7 @@ searchable_classes:
         name: Project Alias
     selected_fields:
       - key: accession
-        name: "Dataset ID"
+        name: Dataset ID
       - key: title
         name: Title
 

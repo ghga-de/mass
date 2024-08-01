@@ -1,18 +1,10 @@
-version: '3'
-
 services:
   app:
     build:
       context: .
       dockerfile: ./Dockerfile
       args:
-        # [Choice] Python version: 3, 3.8, 3.7, 3.6
-        VARIANT: 3.9
-        # [Choice] Install Node.js
-        INSTALL_NODE: "true"
-        NODE_VERSION: "lts/*"
-        # Please adapt to package name:
-        PACKAGE_NAME: "mass"
+        PACKAGE_NAME: mass
         # On Linux, you may need to update USER_UID and USER_GID below if not your local UID is not 1000.
         USER_UID: 1000
         USER_GID: 1000
@@ -33,18 +25,26 @@ services:
     environment:
       # Please adapt to package name:
       MASS_CONFIG_YAML: /workspace/.devcontainer/.dev_config.yaml
-      # Used by db migration:
-      DB_URL: postgresql://postgres:postgres@postgresql/postgres
+
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
-
-    # Please remove service dependencies that are not needed:
   mongodb:
     image: mongo:latest
     restart: unless-stopped
     volumes:
       - mongo_fs:/data/db
+
+  mongo-express:
+    image: mongo-express:latest
+    restart: unless-stopped
+    ports:
+      - 8088:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: dev
+      ME_CONFIG_BASICAUTH_PASSWORD: dev
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
 
 volumes:
   mongo_fs: {}
