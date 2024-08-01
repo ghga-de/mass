@@ -65,7 +65,7 @@ async def test_health_check(joint_fixture: JointFixture):
 
 async def test_search_options(joint_fixture: JointFixture):
     """Verify that we can request the configured resource class information correctly"""
-    response = await joint_fixture.rest_client.get(url="/rpc/search-options")
+    response = await joint_fixture.rest_client.get(url="/search-options")
 
     assert response.json() == joint_fixture.config.model_dump()["searchable_classes"]
 

@@ -151,7 +151,7 @@ async def test_sort_with_invalid_sort_order(joint_fixture: JointFixture, order):
         "sort": [order],
     }
 
-    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
+    response = await joint_fixture.rest_client.get(url="/search", params=params)
     assert response.status_code == 422
     detail = response.json()["detail"]
     assert "Input should be 'ascending', 'descending' or 'relevance'" in str(detail)
@@ -166,7 +166,7 @@ async def test_sort_with_invalid_field_and_sort_order(joint_fixture: JointFixtur
         "sort": ["also_bogus"],
     }
 
-    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
+    response = await joint_fixture.rest_client.get(url="/search", params=params)
     assert response.status_code == 422
 
 
@@ -182,7 +182,7 @@ async def test_sort_with_duplicate_field(joint_fixture: JointFixture):
         "sort": [models.SortOrder.ASCENDING.value, models.SortOrder.DESCENDING.value],
     }
 
-    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
+    response = await joint_fixture.rest_client.get(url="/search", params=params)
     assert response.status_code == 422
     assert response.json()["detail"] == "Fields to order by must be unique"
 
@@ -198,7 +198,7 @@ async def test_sort_with_missing_sort(joint_fixture: JointFixture):
         "order_by": ["field"],
     }
 
-    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
+    response = await joint_fixture.rest_client.get(url="/search", params=params)
     assert response.status_code == 422
     details = response.json()["detail"]
     assert details == "Number of fields to order by must match number of sort options"
@@ -216,7 +216,7 @@ async def test_sort_with_superfluous_sort(joint_fixture: JointFixture):
         "sort": [models.SortOrder.ASCENDING.value, models.SortOrder.DESCENDING.value],
     }
 
-    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
+    response = await joint_fixture.rest_client.get(url="/search", params=params)
     assert response.status_code == 422
     details = response.json()["detail"]
     assert details == "Number of fields to order by must match number of sort options"

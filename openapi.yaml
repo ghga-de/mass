@@ -190,10 +190,10 @@ paths:
               schema: {}
           description: Successful Response
       summary: health
-  /rpc/search:
+  /search:
     get:
       description: Perform search query
-      operationId: search_rpc_search_get
+      operationId: search_search_get
       parameters:
       - description: The class name to search
         in: query
@@ -293,23 +293,26 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: Perform a search using query string and filter parameters
-  /rpc/search-options:
+  /search-options:
     get:
-      description: 'Returns the configured searchable classes. This describes which
-        resource classes
+      description: 'Return the configured searchable classes.
 
-        are accounted for in the system, as well as their facetable and selected fields.
+
+        The returned object describes which resource classes are accounted for in
+        the system,
+
+        as well as their facetable and selected fields.
 
         The facetable fields represent specific data fields that will be aggregated
+        alongside
 
-        alongside the search hits for further search refinement. The selected fields
-        are
+        the search hits for further search refinement.
 
-        those that will appear in the search results. They contain a key, which is
-        used by
+        The selected fields are those that will appear in the search results.
 
-        the system, and a name, which is more user-friendly.'
-      operationId: search_options_rpc_search_options_get
+        They contain a key, which is used by the system, and a name, which is more
+        user-friendly.'
+      operationId: search_options_search_options_get
       responses:
         '200':
           content:
@@ -317,7 +320,7 @@ paths:
               schema:
                 additionalProperties:
                   $ref: '#/components/schemas/SearchableClass'
-                title: Response Search Options Rpc Search Options Get
+                title: Response Search Options Search Options Get
                 type: object
           description: Successful Response
       summary: Retrieve all configured resource classes with their facetable and selected

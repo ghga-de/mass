@@ -68,8 +68,8 @@ class JointFixture:
                     )
 
     async def call_search_endpoint(self, params: QueryParams) -> models.QueryResults:
-        """Convenience function to call the /rpc/search endpoint"""
-        response = await self.rest_client.get(url="/rpc/search", params=params)
+        """Convenience function to call the /search endpoint"""
+        response = await self.rest_client.get(url="/search", params=params)
         response.raise_for_status()
         return models.QueryResults(**response.json())
 

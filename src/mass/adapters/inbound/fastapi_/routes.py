@@ -38,25 +38,27 @@ async def health():
 
 
 @router.get(
-    path="/rpc/search-options",
+    path="/search-options",
     summary="Retrieve all configured resource classes with their facetable and selected fields",
     response_model=dict[str, models.SearchableClass],
 )
 async def search_options(
     config: ConfigDummy,
 ) -> dict[str, models.SearchableClass]:
-    """Returns the configured searchable classes. This describes which resource classes
-    are accounted for in the system, as well as their facetable and selected fields.
-    The facetable fields represent specific data fields that will be aggregated
-    alongside the search hits for further search refinement. The selected fields are
-    those that will appear in the search results. They contain a key, which is used by
-    the system, and a name, which is more user-friendly.
+    """Return the configured searchable classes.
+
+    The returned object describes which resource classes are accounted for in the system,
+    as well as their facetable and selected fields.
+    The facetable fields represent specific data fields that will be aggregated alongside
+    the search hits for further search refinement.
+    The selected fields are those that will appear in the search results.
+    They contain a key, which is used by the system, and a name, which is more user-friendly.
     """
     return config.searchable_classes
 
 
 @router.get(
-    path="/rpc/search",
+    path="/search",
     summary="Perform a search using query string and filter parameters",
     response_model=models.QueryResults,
 )
@@ -122,7 +124,7 @@ async def search(  # noqa: PLR0913
         raise HTTPException(
             status_code=422,
             detail="The specified class name is invalid."
-            + " See /rpc/search-options for a list of valid class names.",
+            + " See /search-options for a list of valid class names.",
         ) from err
     except (query_handler.SearchError, query_handler.ValidationError) as err:
         raise HTTPException(
