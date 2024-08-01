@@ -5,12 +5,12 @@ components:
         the facet
       properties:
         key:
-          description: The raw facet key, such as study.type
+          description: The raw property key, such as study.type
           title: Key
           type: string
         name:
           default: ''
-          description: The user-friendly name for the facet
+          description: The user-friendly name for the property
           title: Name
           type: string
         options:
@@ -23,22 +23,6 @@ components:
       - key
       - options
       title: Facet
-      type: object
-    FacetLabel:
-      description: Contains the key and corresponding user-friendly name for a facet
-      properties:
-        key:
-          description: The raw facet key, such as study.type
-          title: Key
-          type: string
-        name:
-          default: ''
-          description: The user-friendly name for the facet
-          title: Name
-          type: string
-      required:
-      - key
-      title: FacetLabel
       type: object
     FacetOption:
       description: Represents the format for an option for a facet
@@ -56,22 +40,6 @@ components:
       - count
       title: FacetOption
       type: object
-    Filter:
-      description: Represents a filter used to refine results
-      properties:
-        key:
-          description: The field to filter
-          title: Key
-          type: string
-        value:
-          description: The value the field must match
-          title: Value
-          type: string
-      required:
-      - key
-      - value
-      title: Filter
-      type: object
     HTTPValidationError:
       properties:
         detail:
@@ -80,6 +48,22 @@ components:
           title: Detail
           type: array
       title: HTTPValidationError
+      type: object
+    PropertyLabel:
+      description: Contains the key and corresponding user-friendly name for a property
+      properties:
+        key:
+          description: The raw property key, such as study.type
+          title: Key
+          type: string
+        name:
+          default: ''
+          description: The user-friendly name for the property
+          title: Name
+          type: string
+      required:
+      - key
+      title: PropertyLabel
       type: object
     QueryResults:
       description: Contains the facets, hit count, and hits
@@ -132,47 +116,6 @@ components:
       - content
       title: Resource
       type: object
-    SearchParameters:
-      description: Represents the data submitted in a search query
-      properties:
-        class_name:
-          description: The name of the resource class, e.g. Dataset
-          title: Class Name
-          type: string
-        filters:
-          default: []
-          description: The filters to apply to the search
-          items:
-            $ref: '#/components/schemas/Filter'
-          title: Filters
-          type: array
-        limit:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Limit the results to this number
-          title: Limit
-        query:
-          default: ''
-          description: The keyword search for the query
-          title: Query
-          type: string
-        skip:
-          default: 0
-          description: The number of results to skip for pagination
-          title: Skip
-          type: integer
-        sorting_parameters:
-          default: []
-          description: Collection of sorting parameters used to refine search results
-          items:
-            $ref: '#/components/schemas/SortingParameter'
-          title: Sorting Parameters
-          type: array
-      required:
-      - class_name
-      title: SearchParameters
-      type: object
     SearchableClass:
       description: Represents a searchable artifact or resource type
       properties:
@@ -183,12 +126,19 @@ components:
         facetable_properties:
           description: A list of of the facetable properties for the resource type
           items:
-            $ref: '#/components/schemas/FacetLabel'
+            $ref: '#/components/schemas/PropertyLabel'
           title: Facetable Properties
+          type: array
+        selected_properties:
+          description: A list of the returned properties for the resource type
+          items:
+            $ref: '#/components/schemas/PropertyLabel'
+          title: Selected Properties
           type: array
       required:
       - description
       - facetable_properties
+      - selected_properties
       title: SearchableClass
       type: object
     SortOrder:
@@ -199,22 +149,6 @@ components:
       - relevance
       title: SortOrder
       type: string
-    SortingParameter:
-      description: Represents a combination of a field to sort and the sort order
-      properties:
-        field:
-          description: Which field to sort results by.
-          title: Field
-          type: string
-        order:
-          allOf:
-          - $ref: '#/components/schemas/SortOrder'
-          default: ascending
-          description: Sort order to apply to sort_field
-      required:
-      - field
-      title: SortingParameter
-      type: object
     ValidationError:
       properties:
         loc:
@@ -253,15 +187,94 @@ paths:
           description: Successful Response
       summary: health
   /rpc/search:
-    post:
+    get:
       description: Perform search query
-      operationId: search_rpc_search_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SearchParameters'
+      operationId: search_rpc_search_get
+      parameters:
+      - description: The class name to search
+        in: query
+        name: class_name
         required: true
+        schema:
+          description: The class name to search
+          title: Class Name
+          type: string
+      - description: The keyword search for the query
+        in: query
+        name: query
+        required: false
+        schema:
+          default: ''
+          description: The keyword search for the query
+          title: Query
+          type: string
+      - description: Field(s) that shall be used for filtering results
+        in: query
+        name: filter_by
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Field(s) that shall be used for filtering results
+          title: Filter By
+      - description: Values(s) that shall be used for filtering results
+        in: query
+        name: value
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Values(s) that shall be used for filtering results
+          title: Value
+      - description: The number of results to skip for pagination
+        in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          description: The number of results to skip for pagination
+          title: Skip
+          type: integer
+      - description: Limit the results to this number
+        in: query
+        name: limit
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Limit the results to this number
+          title: Limit
+      - description: Field(s) that shall be used for sorting results
+        in: query
+        name: order_by
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Field(s) that shall be used for sorting results
+          title: Order By
+      - description: Sort order(s) that shall be used when sorting results
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SortOrder'
+            type: array
+          - type: 'null'
+          description: Sort order(s) that shall be used when sorting results
+          title: Sort
       responses:
         '200':
           content:

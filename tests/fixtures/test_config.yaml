@@ -26,16 +26,27 @@ searchable_classes:
         name: Field 1
       - key: "has_object.type"
         name: Object Type
+    selected_properties:
+      - key: id_
+        name: ID
+      - key: type
+        name: Type
   EmptyCollection:
     description: An empty collection to test the index creation.
     facetable_properties:
       - key: fun_fact
         name: Fun Fact
+    selected_properties:
+      - key: id_
+        name: ID
   SortingTests:
     description: Data for testing sorting functionality.
     facetable_properties:
       - key: field
         name: Field
+    selected_properties:
+      - key: id_
+        name: ID
   RelevanceTests:
     description: Data for testing sorting by relevance.
     facetable_properties:
@@ -43,6 +54,9 @@ searchable_classes:
         name: Field
       - key: data
         name: Data
+    selected_properties:
+      - key: id_
+        name: ID
 resource_change_event_topic: searchable_resources
 resource_deletion_event_type: searchable_resource_deleted
 resource_upsertion_event_type: searchable_resource_upserted

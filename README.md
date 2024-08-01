@@ -303,11 +303,11 @@ The service requires the following configuration parameters:
 ## Definitions
 
 
-- <a id="%24defs/FacetLabel"></a>**`FacetLabel`** *(object)*: Contains the key and corresponding user-friendly name for a facet.
+- <a id="%24defs/PropertyLabel"></a>**`PropertyLabel`** *(object)*: Contains the key and corresponding user-friendly name for a property.
 
-  - **`key`** *(string, required)*: The raw facet key, such as study.type.
+  - **`key`** *(string, required)*: The raw property key, such as study.type.
 
-  - **`name`** *(string)*: The user-friendly name for the facet. Default: `""`.
+  - **`name`** *(string)*: The user-friendly name for the property. Default: `""`.
 
 - <a id="%24defs/SearchableClass"></a>**`SearchableClass`** *(object)*: Represents a searchable artifact or resource type.
 
@@ -315,7 +315,11 @@ The service requires the following configuration parameters:
 
   - **`facetable_properties`** *(array, required)*: A list of of the facetable properties for the resource type.
 
-    - **Items**: Refer to *[#/$defs/FacetLabel](#%24defs/FacetLabel)*.
+    - **Items**: Refer to *[#/$defs/PropertyLabel](#%24defs/PropertyLabel)*.
+
+  - **`selected_properties`** *(array, required)*: A list of the returned properties for the resource type.
+
+    - **Items**: Refer to *[#/$defs/PropertyLabel](#%24defs/PropertyLabel)*.
 
 
 ### Usage:

@@ -16,10 +16,9 @@
 """Tests concerning the sorting functionality"""
 
 import pytest
-from hexkit.custom_types import JsonObject
 
 from mass.core import models
-from tests.fixtures.joint import JointFixture
+from tests.fixtures.joint import JointFixture, QueryParams
 
 CLASS_NAME = "SortingTests"
 BASIC_SORT_PARAMETERS = [
@@ -74,15 +73,9 @@ def multi_column_sort(
 @pytest.mark.asyncio
 async def test_api_without_sort_parameters(joint_fixture: JointFixture):
     """Make sure default Pydantic model parameter works as expected"""
-    search_parameters: JsonObject = {
-        "class_name": CLASS_NAME,
-        "query": "",
-        "filters": [],
-    }
+    params: QueryParams = {"class_name": CLASS_NAME}
 
-    results = await joint_fixture.call_search_endpoint(
-        search_parameters=search_parameters
-    )
+    results = await joint_fixture.call_search_endpoint(params)
     assert results.count > 0
     expected = multi_column_sort(results.hits, BASIC_SORT_PARAMETERS)
     assert results.hits == expected
@@ -95,24 +88,19 @@ async def test_sort_with_id_not_last(joint_fixture: JointFixture):
     Since we modify sorting parameters based on presence of id_, make sure there aren't
     any bugs that will break the sort or query process.
     """
-    sorts = [
-        {"field": "id_", "order": "ascending"},
-        {"field": "field", "order": "descending"},
-    ]
-    search_parameters: JsonObject = {
+    params: QueryParams = {
         "class_name": CLASS_NAME,
         "query": "",
         "filters": [],
-        "sorting_parameters": sorts,
+        "order_by": ["id_", "field"],
+        "sort": ["ascending", "descending"],
     }
 
     sorts_in_model_form = [
-        models.SortingParameter(
-            field=param["field"], order=models.SortOrder(param["order"])
-        )
-        for param in sorts
+        models.SortingParameter(field="id_", order=models.SortOrder.ASCENDING),
+        models.SortingParameter(field="field", order=models.SortOrder.DESCENDING),
     ]
-    results = await joint_fixture.call_search_endpoint(search_parameters)
+    results = await joint_fixture.call_search_endpoint(params)
     assert results.hits == multi_column_sort(results.hits, sorts_in_model_form)
 
 
@@ -125,16 +113,13 @@ async def test_sort_with_params_but_not_id(joint_fixture: JointFixture):
     any tie between otherwise equivalent keys. If it is included but is not the final
     field, then we should not modify the parameters.
     """
-    search_parameters: JsonObject = {
+    params: QueryParams = {
         "class_name": CLASS_NAME,
-        "query": "",
-        "filters": [],
-        "sorting_parameters": [
-            {"field": "field", "order": models.SortOrder.ASCENDING.value}
-        ],
+        "order_by": ["field"],
+        "sort": ["ascending"],
     }
 
-    results = await joint_fixture.call_search_endpoint(search_parameters)
+    results = await joint_fixture.call_search_endpoint(params)
     assert results.hits == multi_column_sort(results.hits, BASIC_SORT_PARAMETERS)
 
 
@@ -146,19 +131,13 @@ async def test_sort_with_invalid_field(joint_fixture: JointFixture):
     value for it. If we sort with a truly invalid field, it should have no impact on the
     resulting sort order.
     """
-    search_parameters: JsonObject = {
+    params: QueryParams = {
         "class_name": CLASS_NAME,
-        "query": "",
-        "filters": [],
-        "sorting_parameters": [
-            {
-                "field": "some_bogus_field",
-                "order": models.SortOrder.ASCENDING.value,
-            }
-        ],
+        "order_by": ["some_bogus_field"],
+        "sort": ["ascending"],
     }
 
-    results = await joint_fixture.call_search_endpoint(search_parameters)
+    results = await joint_fixture.call_search_endpoint(params)
     assert results.hits == multi_column_sort(results.hits, BASIC_SORT_PARAMETERS)
 
 
@@ -166,32 +145,28 @@ async def test_sort_with_invalid_field(joint_fixture: JointFixture):
 @pytest.mark.asyncio
 async def test_sort_with_invalid_sort_order(joint_fixture: JointFixture, order):
     """Test supplying an invalid value for the sort order"""
-    search_parameters: JsonObject = {
+    params: QueryParams = {
         "class_name": CLASS_NAME,
-        "query": "",
-        "filters": [],
-        "sorting_parameters": [{"field": "field", "order": order}],
+        "order_by": ["field"],
+        "sort": [order],
     }
 
-    response = await joint_fixture.rest_client.post(
-        url="/rpc/search", json=search_parameters
-    )
+    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
     assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert "Input should be 'ascending', 'descending' or 'relevance'" in str(detail)
 
 
 @pytest.mark.asyncio
 async def test_sort_with_invalid_field_and_sort_order(joint_fixture: JointFixture):
     """Test with both invalid field name and invalid sort order."""
-    search_parameters: JsonObject = {
+    params: QueryParams = {
         "class_name": CLASS_NAME,
-        "query": "",
-        "filters": [],
-        "sorting_parameters": [{"field": "some_bogus_field", "order": -7}],
+        "order_by": ["some_bogus_field"],
+        "sort": ["also_bogus"],
     }
 
-    response = await joint_fixture.rest_client.post(
-        url="/rpc/search", json=search_parameters
-    )
+    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
     assert response.status_code == 422
 
 
@@ -201,16 +176,47 @@ async def test_sort_with_duplicate_field(joint_fixture: JointFixture):
 
     This should be prevented by the pydantic model validator and raise an HTTP error.
     """
-    search_parameters: JsonObject = {
+    params = {
         "class_name": CLASS_NAME,
-        "query": "",
-        "filters": [],
-        "sorting_parameters": [
-            {"field": "field", "order": models.SortOrder.ASCENDING.value},
-            {"field": "field", "order": models.SortOrder.DESCENDING.value},
-        ],
+        "order_by": ["field", "field"],
+        "sort": [models.SortOrder.ASCENDING.value, models.SortOrder.DESCENDING.value],
     }
-    response = await joint_fixture.rest_client.post(
-        url="/rpc/search", json=search_parameters
-    )
+
+    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
     assert response.status_code == 422
+    assert response.json()["detail"] == "Fields to order by must be unique"
+
+
+@pytest.mark.asyncio
+async def test_sort_with_missing_sort(joint_fixture: JointFixture):
+    """Supply sorting parameters with missing sort option.
+
+    This should be prevented by the pydantic model validator and raise an HTTP error.
+    """
+    params = {
+        "class_name": CLASS_NAME,
+        "order_by": ["field"],
+    }
+
+    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
+    assert response.status_code == 422
+    details = response.json()["detail"]
+    assert details == "Number of fields to order by must match number of sort options"
+
+
+@pytest.mark.asyncio
+async def test_sort_with_superfluous_sort(joint_fixture: JointFixture):
+    """Supply sorting parameters with superfluous sort option.
+
+    This should be prevented by the pydantic model validator and raise an HTTP error.
+    """
+    params = {
+        "class_name": CLASS_NAME,
+        "order_by": ["field"],
+        "sort": [models.SortOrder.ASCENDING.value, models.SortOrder.DESCENDING.value],
+    }
+
+    response = await joint_fixture.rest_client.get(url="/rpc/search", params=params)
+    assert response.status_code == 422
+    details = response.json()["detail"]
+    assert details == "Number of fields to order by must match number of sort options"

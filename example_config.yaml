@@ -35,6 +35,11 @@ searchable_classes:
       name: Study Type
     - key: study.project.alias
       name: Project Alias
+    selected_properties:
+    - key: accession
+      name: Dataset ID
+    - key: title
+      name: Title
 service_instance_id: '001'
 service_name: mass
 workers: 1

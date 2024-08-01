@@ -61,8 +61,8 @@ def pipeline_match_filters_stage(*, filters: list[models.Filter]) -> JsonObject:
 
 def pipeline_facet_sort_and_paginate(
     *,
-    facet_fields: list[models.FacetLabel],
-    skip: int,
+    facet_fields: list[models.PropertyLabel],
+    skip: int = 0,
     limit: int | None = None,
     sorts: OrderedDict,
 ):
@@ -105,7 +105,7 @@ def pipeline_facet_sort_and_paginate(
     return {"$facet": segment}
 
 
-def pipeline_project(*, facet_fields: list[models.FacetLabel]) -> JsonObject:
+def pipeline_project(*, facet_fields: list[models.PropertyLabel]) -> JsonObject:
     """Reshape the query so the facets are contained in a top level object"""
     segment: dict[str, Any] = {"hits": 1, "facets": []}
     segment["count"] = {"$arrayElemAt": ["$count.total", 0]}
@@ -122,7 +122,7 @@ def build_pipeline(  # noqa: PLR0913
     *,
     query: str,
     filters: list[models.Filter],
-    facet_fields: list[models.FacetLabel],
+    facet_fields: list[models.PropertyLabel],
     skip: int = 0,
     limit: int | None = None,
     sorting_parameters: list[models.SortingParameter],
