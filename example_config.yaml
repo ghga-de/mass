@@ -28,14 +28,14 @@ resource_upsertion_event_type: searchable_resource_upserted
 searchable_classes:
   Dataset:
     description: Dataset grouping files under controlled access.
-    facetable_properties:
+    facetable_fields:
     - key: type
       name: Type
     - key: study.type
       name: Study Type
     - key: study.project.alias
       name: Project Alias
-    selected_properties:
+    selected_fields:
     - key: accession
       name: Dataset ID
     - key: title

@@ -42,7 +42,7 @@ class Aggregator(AggregatorPort):
         *,
         query: str,
         filters: list[models.Filter],
-        facet_fields: list[models.PropertyLabel],
+        facet_fields: list[models.FieldLabel],
         skip: int = 0,
         limit: int | None = None,
         sorting_parameters: list[models.SortingParameter],

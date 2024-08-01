@@ -47,7 +47,7 @@ def compare(
         dataset_embedded_class = config.searchable_classes["DatasetEmbedded"]
         assert dataset_embedded_class is not None
 
-        configured_facets = dataset_embedded_class.facetable_properties
+        configured_facets = dataset_embedded_class.facetable_fields
         assert len(results.facets) == len(configured_facets)
         assert {x.key for x in results.facets} == {x.key for x in configured_facets}
     else:

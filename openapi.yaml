@@ -5,12 +5,12 @@ components:
         the facet
       properties:
         key:
-          description: The raw property key, such as study.type
+          description: The raw field key, such as study.type
           title: Key
           type: string
         name:
           default: ''
-          description: The user-friendly name for the property
+          description: The user-friendly name for the field
           title: Name
           type: string
         options:
@@ -40,6 +40,22 @@ components:
       - count
       title: FacetOption
       type: object
+    FieldLabel:
+      description: Contains the key and corresponding user-friendly name for a field
+      properties:
+        key:
+          description: The raw field key, such as study.type
+          title: Key
+          type: string
+        name:
+          default: ''
+          description: The user-friendly name for the field
+          title: Name
+          type: string
+      required:
+      - key
+      title: FieldLabel
+      type: object
     HTTPValidationError:
       properties:
         detail:
@@ -48,22 +64,6 @@ components:
           title: Detail
           type: array
       title: HTTPValidationError
-      type: object
-    PropertyLabel:
-      description: Contains the key and corresponding user-friendly name for a property
-      properties:
-        key:
-          description: The raw property key, such as study.type
-          title: Key
-          type: string
-        name:
-          default: ''
-          description: The user-friendly name for the property
-          title: Name
-          type: string
-      required:
-      - key
-      title: PropertyLabel
       type: object
     QueryResults:
       description: Contains the facets, hit count, and hits
@@ -123,22 +123,22 @@ components:
           description: A brief description of the resource type
           title: Description
           type: string
-        facetable_properties:
-          description: A list of of the facetable properties for the resource type
+        facetable_fields:
+          default: []
+          description: A list of of the facetable fields for the resource type
           items:
-            $ref: '#/components/schemas/PropertyLabel'
-          title: Facetable Properties
+            $ref: '#/components/schemas/FieldLabel'
+          title: Facetable Fields
           type: array
-        selected_properties:
-          description: A list of the returned properties for the resource type
+        selected_fields:
+          default: []
+          description: A list of the returned fields for the resource type
           items:
-            $ref: '#/components/schemas/PropertyLabel'
-          title: Selected Properties
+            $ref: '#/components/schemas/FieldLabel'
+          title: Selected Fields
           type: array
       required:
       - description
-      - facetable_properties
-      - selected_properties
       title: SearchableClass
       type: object
     SortOrder:
@@ -294,16 +294,17 @@ paths:
       description: 'Returns the configured searchable classes. This describes which
         resource classes
 
-        are accounted for in the system, as well as their facetable properties. The
-        facetable
+        are accounted for in the system, as well as their facetable and selected fields.
 
-        properties represent specific data properties that will be aggregated alongside
-        the
+        The facetable fields represent specific data fields that will be aggregated
 
-        search hits for further search refinement. They contain a key, which is used
-        by the
+        alongside the search hits for further search refinement. The selected fields
+        are
 
-        system, and a name, which is more user-friendly.'
+        those that will appear in the search results. They contain a key, which is
+        used by
+
+        the system, and a name, which is more user-friendly.'
       operationId: search_options_rpc_search_options_get
       responses:
         '200':
@@ -315,4 +316,5 @@ paths:
                 title: Response Search Options Rpc Search Options Get
                 type: object
           description: Successful Response
-      summary: Retrieve all configured resource classes and facetable properties
+      summary: Retrieve all configured resource classes with their facetable and selected
+        fields

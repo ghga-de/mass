@@ -7,7 +7,7 @@ This service is currently designed to work with MongoDB and uses an aggregation 
 Typical sequence of events is as follows:
 1. Requests are received by the API, then directed to the QueryHandler in the core.
 
-2. From there, the configuration is consulted to retrieve any facetable properties for the searched resource class.
+2. From there, the configuration is consulted to retrieve any facetable and selected fields for the searched resource class.
 
 3. The search parameters and facet fields are passed to the Aggregator, which builds and runs the aggregation pipeline on the appropriate collection. The aggregation pipeline is a series of stages run in sequence:
    - The first stage runs a text match using the query string.

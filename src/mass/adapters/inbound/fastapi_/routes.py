@@ -39,17 +39,18 @@ async def health():
 
 @router.get(
     path="/rpc/search-options",
-    summary="Retrieve all configured resource classes and facetable properties",
+    summary="Retrieve all configured resource classes with their facetable and selected fields",
     response_model=dict[str, models.SearchableClass],
 )
 async def search_options(
     config: ConfigDummy,
 ) -> dict[str, models.SearchableClass]:
     """Returns the configured searchable classes. This describes which resource classes
-    are accounted for in the system, as well as their facetable properties. The facetable
-    properties represent specific data properties that will be aggregated alongside the
-    search hits for further search refinement. They contain a key, which is used by the
-    system, and a name, which is more user-friendly.
+    are accounted for in the system, as well as their facetable and selected fields.
+    The facetable fields represent specific data fields that will be aggregated
+    alongside the search hits for further search refinement. The selected fields are
+    those that will appear in the search results. They contain a key, which is used by
+    the system, and a name, which is more user-friendly.
     """
     return config.searchable_classes
 

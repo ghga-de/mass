@@ -61,12 +61,12 @@ def pipeline_match_filters_stage(*, filters: list[models.Filter]) -> JsonObject:
 
 def pipeline_facet_sort_and_paginate(
     *,
-    facet_fields: list[models.PropertyLabel],
+    facet_fields: list[models.FieldLabel],
     skip: int = 0,
     limit: int | None = None,
     sorts: OrderedDict,
 ):
-    """Uses a list of facetable property names to build the subquery for faceting"""
+    """Uses a list of facetable fields to build the subquery for faceting"""
     segment: dict[str, list[JsonObject]] = {}
 
     for facet in facet_fields:
@@ -105,7 +105,7 @@ def pipeline_facet_sort_and_paginate(
     return {"$facet": segment}
 
 
-def pipeline_project(*, facet_fields: list[models.PropertyLabel]) -> JsonObject:
+def pipeline_project(*, facet_fields: list[models.FieldLabel]) -> JsonObject:
     """Reshape the query so the facets are contained in a top level object"""
     segment: dict[str, Any] = {"hits": 1, "facets": []}
     segment["count"] = {"$arrayElemAt": ["$count.total", 0]}
@@ -122,7 +122,7 @@ def build_pipeline(  # noqa: PLR0913
     *,
     query: str,
     filters: list[models.Filter],
-    facet_fields: list[models.PropertyLabel],
+    facet_fields: list[models.FieldLabel],
     skip: int = 0,
     limit: int | None = None,
     sorting_parameters: list[models.SortingParameter],

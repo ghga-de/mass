@@ -100,7 +100,7 @@ The service requires the following configuration parameters:
 
 - **`log_traceback`** *(boolean)*: Whether to include exception tracebacks in log messages. Default: `true`.
 
-- **`searchable_classes`** *(object)*: A collection of searchable_classes with facetable properties. Can contain additional properties.
+- **`searchable_classes`** *(object)*: A collection of searchable_classes with facetable and selected fields. Can contain additional properties.
 
   - **Additional properties**: Refer to *[#/$defs/SearchableClass](#%24defs/SearchableClass)*.
 
@@ -303,23 +303,23 @@ The service requires the following configuration parameters:
 ## Definitions
 
 
-- <a id="%24defs/PropertyLabel"></a>**`PropertyLabel`** *(object)*: Contains the key and corresponding user-friendly name for a property.
+- <a id="%24defs/FieldLabel"></a>**`FieldLabel`** *(object)*: Contains the key and corresponding user-friendly name for a field.
 
-  - **`key`** *(string, required)*: The raw property key, such as study.type.
+  - **`key`** *(string, required)*: The raw field key, such as study.type.
 
-  - **`name`** *(string)*: The user-friendly name for the property. Default: `""`.
+  - **`name`** *(string)*: The user-friendly name for the field. Default: `""`.
 
 - <a id="%24defs/SearchableClass"></a>**`SearchableClass`** *(object)*: Represents a searchable artifact or resource type.
 
   - **`description`** *(string, required)*: A brief description of the resource type.
 
-  - **`facetable_properties`** *(array, required)*: A list of of the facetable properties for the resource type.
+  - **`facetable_fields`** *(array)*: A list of of the facetable fields for the resource type. Default: `[]`.
 
-    - **Items**: Refer to *[#/$defs/PropertyLabel](#%24defs/PropertyLabel)*.
+    - **Items**: Refer to *[#/$defs/FieldLabel](#%24defs/FieldLabel)*.
 
-  - **`selected_properties`** *(array, required)*: A list of the returned properties for the resource type.
+  - **`selected_fields`** *(array)*: A list of the returned fields for the resource type. Default: `[]`.
 
-    - **Items**: Refer to *[#/$defs/PropertyLabel](#%24defs/PropertyLabel)*.
+    - **Items**: Refer to *[#/$defs/FieldLabel](#%24defs/FieldLabel)*.
 
 
 ### Usage:
@@ -359,7 +359,7 @@ This service is currently designed to work with MongoDB and uses an aggregation 
 Typical sequence of events is as follows:
 1. Requests are received by the API, then directed to the QueryHandler in the core.
 
-2. From there, the configuration is consulted to retrieve any facetable properties for the searched resource class.
+2. From there, the configuration is consulted to retrieve any facetable and selected fields for the searched resource class.
 
 3. The search parameters and facet fields are passed to the Aggregator, which builds and runs the aggregation pipeline on the appropriate collection. The aggregation pipeline is a series of stages run in sequence:
    - The first stage runs a text match using the query string.

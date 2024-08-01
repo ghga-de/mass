@@ -77,9 +77,9 @@ async def test_facets_returned(joint_fixture: JointFixture):
     )
 
     config = get_config()
-    facets: list[models.PropertyLabel] = config.searchable_classes[
+    facets: list[models.FieldLabel] = config.searchable_classes[
         "DatasetEmbedded"
-    ].facetable_properties
+    ].facetable_fields
     facet_key_to_name = {x.key: x.name for x in facets}
 
     for facet in results_faceted.facets:
