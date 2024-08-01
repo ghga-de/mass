@@ -177,7 +177,16 @@ async def test_resource_load(joint_fixture: JointFixture):
     assert len(target_search.hits) == 1
     validated_resource = target_search.hits[0]
     assert validated_resource.id_ == resource.id_
-    assert validated_resource.content == resource.content
+
+    # remove unselected fields
+    content = resource.content
+    assert isinstance(content, dict)
+    del content["field1"]
+    del content["category"]
+    assert isinstance(content["has_object"], dict)
+    del content["has_object"]["id"]
+
+    assert validated_resource.content == content
 
 
 async def test_loading_non_configured_resource(joint_fixture: JointFixture):

@@ -16,7 +16,7 @@
 
 """Utility functions for building the aggregation pipeline used by query handler"""
 
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from typing import Any
 
 from hexkit.custom_types import JsonObject
@@ -64,8 +64,9 @@ def pipeline_facet_sort_and_paginate(
     facet_fields: list[models.FieldLabel],
     skip: int = 0,
     limit: int | None = None,
-    sorts: OrderedDict,
-):
+    project: dict[str, Any] | None = None,
+    sort: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Uses a list of facetable fields to build the subquery for faceting"""
     segment: dict[str, list[JsonObject]] = {}
 
@@ -88,12 +89,18 @@ def pipeline_facet_sort_and_paginate(
     # this is the total number of hits, but pagination can mean only a few are returned
     segment["count"] = [{"$count": "total"}]
 
-    # sort by ID, then rename the ID field to id_ to match our model
-    segment["hits"] = [
-        {"$addFields": {"id_": "$_id"}},
-        {"$unset": "_id"},
-        {"$sort": sorts},
-    ]
+    segment["hits"] = []
+
+    if project:
+        # pick only the selected fields
+        segment["hits"].append({"$project": project})
+    else:
+        # rename the ID field to id_ to match our model
+        segment["hits"] = [{"$addFields": {"id_": "$_id"}}, {"$unset": "_id"}]
+
+    # apply sorting parameters
+    if sort:
+        segment["hits"].append({"$sort": sort})
 
     # apply skip and limit for pagination
     if skip > 0:
@@ -123,6 +130,7 @@ def build_pipeline(  # noqa: PLR0913
     query: str,
     filters: list[models.Filter],
     facet_fields: list[models.FieldLabel],
+    selected_fields: list[models.FieldLabel],
     skip: int = 0,
     limit: int | None = None,
     sorting_parameters: list[models.SortingParameter],
@@ -139,11 +147,20 @@ def build_pipeline(  # noqa: PLR0913
     if filters:
         pipeline.append(pipeline_match_filters_stage(filters=filters))
 
+    # turn the selected fields into a formatted pipeline $project
+    keys = [field.key for field in selected_fields]
+    project: dict[str, Any] = {
+        key if key == "id_" else f"content.{key}": "$_id" if key == "id_" else 1
+        for key in keys
+    }
+    if "id_" in project:
+        project["_id"] = 0
+
     # turn the sorting parameters into a formatted pipeline $sort
-    sorts = OrderedDict()
-    for param in sorting_parameters:
-        sort_order = SORT_ORDER_CONVERSION[param.order.value]
-        sorts[param.field] = sort_order
+    sort: dict[str, Any] = {
+        param.field: SORT_ORDER_CONVERSION[param.order.value]
+        for param in sorting_parameters
+    }
 
     # define facets from preliminary results and reshape data
     pipeline.append(
@@ -151,7 +168,8 @@ def build_pipeline(  # noqa: PLR0913
             facet_fields=facet_fields,
             skip=skip,
             limit=limit,
-            sorts=sorts,
+            project=project,
+            sort=sort,
         )
     )
 

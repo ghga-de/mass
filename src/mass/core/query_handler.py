@@ -95,11 +95,11 @@ class QueryHandler(QueryHandlerPort):
                 models.SortingParameter(field="id_", order=models.SortOrder.ASCENDING)
             )
 
-        # get configured facet fields for given resource class
+        # get configured facet and selected fields for given resource class
         try:
-            facet_fields: list[models.FieldLabel] = self._config.searchable_classes[
-                class_name
-            ].facetable_fields
+            searchable_class = self._config.searchable_classes[class_name]
+            facet_fields: list[models.FieldLabel] = searchable_class.facetable_fields
+            selected_fields: list[models.FieldLabel] = searchable_class.selected_fields
         except KeyError as err:
             raise self.ClassNotConfiguredError(class_name=class_name) from err
 
@@ -111,6 +111,7 @@ class QueryHandler(QueryHandlerPort):
                     query=query,
                     filters=filters,
                     facet_fields=facet_fields,
+                    selected_fields=selected_fields,
                     skip=skip,
                     limit=limit,
                     sorting_parameters=sorting_parameters,

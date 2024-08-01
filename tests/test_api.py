@@ -41,17 +41,15 @@ def compare(
     assert results.count == count
     assert len(results.hits) == hit_length
 
-    if not facets:
+    if facets:
+        assert results.facets == facets
+    else:
         config = get_config()
-
         dataset_embedded_class = config.searchable_classes["DatasetEmbedded"]
         assert dataset_embedded_class is not None
-
         configured_facets = dataset_embedded_class.facetable_fields
         assert len(results.facets) == len(configured_facets)
         assert {x.key for x in results.facets} == {x.key for x in configured_facets}
-    else:
-        assert results.facets == facets
 
     if hits:
         assert results.hits == hits
@@ -124,14 +122,8 @@ async def test_search_with_limit(joint_fixture: JointFixture):
     hit = {
         "id_": "1HotelAlpha-id",
         "content": {
-            "category": "hotel",
-            "field1": "Miami",
-            "has_object": {"id_": "HotelAlphaObject", "type": "piano"},
-            "has_rooms": [
-                {"id_": "HotelAlphaLarge", "type": "large room"},
-                {"id_": "HotelAlphaPoolside", "type": "poolside room"},
-            ],
             "type": "resort",
+            "has_object": {"type": "piano"},
         },
     }
     hits = [models.Resource(**hit)]  # type: ignore[arg-type]

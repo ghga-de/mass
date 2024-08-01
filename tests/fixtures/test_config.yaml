@@ -30,23 +30,21 @@ searchable_classes:
       - key: id_
         name: ID
       - key: type
-        name: Type
+        name: Hotel Type
+      - key: "has_object.type"
+        name: Object Type
   EmptyCollection:
     description: An empty collection to test the index creation.
     facetable_fields:
       - key: fun_fact
         name: Fun Fact
-    selected_fields:
-      - key: id_
-        name: ID
+    selected_fields: []
   SortingTests:
     description: Data for testing sorting functionality.
     facetable_fields:
       - key: field
         name: Field
-    selected_fields:
-      - key: id_
-        name: ID
+    selected_fields: []
   RelevanceTests:
     description: Data for testing sorting by relevance.
     facetable_fields:
@@ -54,9 +52,7 @@ searchable_classes:
         name: Field
       - key: data
         name: Data
-    selected_fields:
-      - key: id_
-        name: ID
+    selected_fields: []
 resource_change_event_topic: searchable_resources
 resource_deletion_event_type: searchable_resource_deleted
 resource_upsertion_event_type: searchable_resource_upserted

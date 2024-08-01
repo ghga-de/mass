@@ -25,7 +25,10 @@ class FieldLabel(BaseModel):
     """Contains the key and corresponding user-friendly name for a field"""
 
     key: str = Field(..., description="The raw field key, such as study.type")
-    name: str = Field(default="", description="The user-friendly name for the field")
+    name: str = Field(
+        default="",
+        description="A user-friendly name for the field (leave empty to use the key)",
+    )
 
 
 class FacetOption(BaseModel):
@@ -50,10 +53,14 @@ class SearchableClass(BaseModel):
         ..., description="A brief description of the resource type"
     )
     facetable_fields: list[FieldLabel] = Field(
-        [], description="A list of of the facetable fields for the resource type"
+        [],
+        description="A list of the facetable fields for the resource type"
+        " (leave empty to not use faceting)",
     )
     selected_fields: list[FieldLabel] = Field(
-        [], description="A list of the returned fields for the resource type"
+        [],
+        description="A list of the returned fields for the resource type"
+        " (leave empty to return all)",
     )
 
 

@@ -81,6 +81,14 @@ async def test_resource_upsert(
     else:
         assert updated_resources.count == results_all.count
 
+    # remove unselected fields
+    content = resource.content
+    assert isinstance(content, dict)
+    del content["field1"]
+    del content["category"]
+    assert isinstance(content["has_object"], dict)
+    del content["has_object"]["id"]
+
     assert resource in updated_resources.hits
     assert resource not in results_all.hits
 

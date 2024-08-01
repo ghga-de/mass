@@ -10,7 +10,7 @@
         },
         "name": {
           "default": "",
-          "description": "The user-friendly name for the field",
+          "description": "A user-friendly name for the field (leave empty to use the key)",
           "title": "Name",
           "type": "string"
         }
@@ -31,7 +31,7 @@
         },
         "facetable_fields": {
           "default": [],
-          "description": "A list of of the facetable fields for the resource type",
+          "description": "A list of the facetable fields for the resource type (leave empty to not use faceting)",
           "items": {
             "$ref": "#/$defs/FieldLabel"
           },
@@ -40,7 +40,7 @@
         },
         "selected_fields": {
           "default": [],
-          "description": "A list of the returned fields for the resource type",
+          "description": "A list of the returned fields for the resource type (leave empty to return all)",
           "items": {
             "$ref": "#/$defs/FieldLabel"
           },

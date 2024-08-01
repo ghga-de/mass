@@ -40,6 +40,7 @@ class AggregatorPort(ABC):
         query: str,
         filters: list[models.Filter],
         facet_fields: list[models.FieldLabel],
+        selected_fields: list[models.FieldLabel],
         skip: int = 0,
         limit: int | None = None,
         sorting_parameters: list[models.SortingParameter],

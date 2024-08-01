@@ -10,7 +10,8 @@ components:
           type: string
         name:
           default: ''
-          description: The user-friendly name for the field
+          description: A user-friendly name for the field (leave empty to use the
+            key)
           title: Name
           type: string
         options:
@@ -49,7 +50,8 @@ components:
           type: string
         name:
           default: ''
-          description: The user-friendly name for the field
+          description: A user-friendly name for the field (leave empty to use the
+            key)
           title: Name
           type: string
       required:
@@ -125,14 +127,16 @@ components:
           type: string
         facetable_fields:
           default: []
-          description: A list of of the facetable fields for the resource type
+          description: A list of the facetable fields for the resource type (leave
+            empty to not use faceting)
           items:
             $ref: '#/components/schemas/FieldLabel'
           title: Facetable Fields
           type: array
         selected_fields:
           default: []
-          description: A list of the returned fields for the resource type
+          description: A list of the returned fields for the resource type (leave
+            empty to return all)
           items:
             $ref: '#/components/schemas/FieldLabel'
           title: Selected Fields
