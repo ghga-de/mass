@@ -3,7 +3,7 @@
 
 # Mass
 
-Metadata Artifact Search Service  - A service for searching metadata artifacts and filtering results.
+Metadata Artifact Search Service - A service for searching metadata artifacts and filtering results.
 
 ## Description
 
@@ -307,9 +307,9 @@ The service requires the following configuration parameters:
 ## Definitions
 
 
-- <a id="%24defs/FieldLabel"></a>**`FieldLabel`** *(object)*: Contains the key and corresponding user-friendly name for a field.
+- <a id="%24defs/FieldLabel"></a>**`FieldLabel`** *(object)*: Contains the field name and corresponding user-friendly name.
 
-  - **`key`** *(string, required)*: The raw field key, such as study.type.
+  - **`key`** *(string, required)*: The raw field name, such as study.type.
 
   - **`name`** *(string)*: A user-friendly name for the field (leave empty to use the key). Default: `""`.
 

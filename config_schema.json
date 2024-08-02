@@ -1,10 +1,10 @@
 {
   "$defs": {
     "FieldLabel": {
-      "description": "Contains the key and corresponding user-friendly name for a field",
+      "description": "Contains the field name and corresponding user-friendly name",
       "properties": {
         "key": {
-          "description": "The raw field key, such as study.type",
+          "description": "The raw field name, such as study.type",
           "title": "Key",
           "type": "string"
         },

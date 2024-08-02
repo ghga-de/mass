@@ -5,7 +5,7 @@ components:
         the facet
       properties:
         key:
-          description: The raw field key, such as study.type
+          description: The raw field name, such as study.type
           title: Key
           type: string
         name:
@@ -42,10 +42,10 @@ components:
       title: FacetOption
       type: object
     FieldLabel:
-      description: Contains the key and corresponding user-friendly name for a field
+      description: Contains the field name and corresponding user-friendly name
       properties:
         key:
-          description: The raw field key, such as study.type
+          description: The raw field name, such as study.type
           title: Key
           type: string
         name:
@@ -175,7 +175,12 @@ components:
       title: ValidationError
       type: object
 info:
-  title: A service for searching metadata artifacts and filtering results.
+  contact:
+    email: contact@ghga.de
+  license:
+    name: Apache 2.0
+  summary: A service for searching metadata artifacts and filtering results.
+  title: Metadata Artifact Search Service
   version: 3.0.0
 openapi: 3.1.0
 paths:
