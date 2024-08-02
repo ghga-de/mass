@@ -30,7 +30,7 @@ searchable_classes:
       - key: id_
         name: ID
       - key: type
-        name: Hotel Type
+        name: Location Type
       - key: "has_object.type"
         name: Object Type
   EmptyCollection:

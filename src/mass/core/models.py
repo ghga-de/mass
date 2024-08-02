@@ -22,9 +22,9 @@ from pydantic import BaseModel, Field
 
 
 class FieldLabel(BaseModel):
-    """Contains the key and corresponding user-friendly name for a field"""
+    """Contains the field name and corresponding user-friendly name"""
 
-    key: str = Field(..., description="The raw field key, such as study.type")
+    key: str = Field(..., description="The raw field name, such as study.type")
     name: str = Field(
         default="",
         description="A user-friendly name for the field (leave empty to use the key)",

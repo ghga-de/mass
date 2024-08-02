@@ -89,23 +89,20 @@ def pipeline_facet_sort_and_paginate(
     # this is the total number of hits, but pagination can mean only a few are returned
     segment["count"] = [{"$count": "total"}]
 
-    segment["hits"] = []
+    # rename the ID field to id_ to match our model
+    segment["hits"] = [{"$addFields": {"id_": "$_id"}}, {"$unset": "_id"}]
 
-    if project:
-        # pick only the selected fields
-        segment["hits"].append({"$project": project})
-    else:
-        # rename the ID field to id_ to match our model
-        segment["hits"] = [{"$addFields": {"id_": "$_id"}}, {"$unset": "_id"}]
-
-    # apply sorting parameters
+    # apply sorting parameters (maybe some of them are unselected fields)
     if sort:
         segment["hits"].append({"$sort": sort})
+
+    # pick only the selected fields
+    if project:
+        segment["hits"].append({"$project": project})
 
     # apply skip and limit for pagination
     if skip > 0:
         segment["hits"].append({"$skip": skip})
-
     if limit:
         segment["hits"].append({"$limit": limit})
 
@@ -148,17 +145,19 @@ def build_pipeline(  # noqa: PLR0913
         pipeline.append(pipeline_match_filters_stage(filters=filters))
 
     # turn the selected fields into a formatted pipeline $project
-    keys = [field.key for field in selected_fields]
-    project: dict[str, Any] = {
-        key if key == "id_" else f"content.{key}": "$_id" if key == "id_" else 1
-        for key in keys
-    }
-    if "id_" in project:
-        project["_id"] = 0
+    project: dict[str, int] = dict.fromkeys(
+        [
+            field.key if field.key == "id_" else f"content.{field.key}"
+            for field in selected_fields
+        ],
+        1,
+    )
 
     # turn the sorting parameters into a formatted pipeline $sort
     sort: dict[str, Any] = {
-        param.field: SORT_ORDER_CONVERSION[param.order.value]
+        param.field
+        if param.field == "id_"
+        else f"content.{param.field}": SORT_ORDER_CONVERSION[param.order.value]
         for param in sorting_parameters
     }
 
