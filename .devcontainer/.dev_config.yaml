@@ -3,13 +3,19 @@ db_name: metadata-store
 searchable_classes:
   Dataset:
     description: Dataset grouping files under controlled access.
-    facetable_properties:
-      - key: type # a property directly part of the dataset
+    facetable_fields:
+      - key: type # a field directly part of the dataset
         name: Type
-      - key: "study.type" # a property that is part of study that is embedded into this dataset
+      - key: "study.type" # a field that is part of study that is embedded into this dataset
         name: Study Type
-      - key: "study.project.alias" # a property part of a deeply embedded resource
+      - key: "study.project.alias" # a field part of a deeply embedded resource
         name: Project Alias
+    selected_fields:
+      - key: accession
+        name: Dataset ID
+      - key: title
+        name: Title
+
 resource_change_event_topic: searchable_resources
 resource_deletion_event_type: searchable_resource_deleted
 resource_upsertion_event_type: searchable_resource_upserted

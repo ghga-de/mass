@@ -16,9 +16,7 @@
 
 """Used to define the location of the main FastAPI app object."""
 
-from fastapi import FastAPI
+from mass.adapters.inbound.fastapi_.configure import Config, get_configured_app
 
-from mass.adapters.inbound.fastapi_.routes import router
-
-app = FastAPI()
-app.include_router(router)
+config = Config()  # type: ignore
+app = get_configured_app(config=config)
