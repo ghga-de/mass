@@ -45,8 +45,8 @@ async def test_resource_upsert(
 
     # define content of resource
     content: dict = {
-        "has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
-        "field1": "something",
+        "object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
+        "city": "something",
         "category": "test object",
     }
 
@@ -82,9 +82,9 @@ async def test_resource_upsert(
 
     # remove unselected fields
     content = resource.content  # type: ignore
-    del content["field1"]
+    del content["city"]
     del content["category"]
-    del content["has_object"]["id"]
+    del content["object"]["id"]
 
     assert resource in updated_resources.hits
     assert resource not in results_all.hits

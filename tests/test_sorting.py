@@ -243,7 +243,7 @@ async def test_sort_with_superfluous_sort(joint_fixture: JointFixture):
 
 
 @pytest.mark.parametrize("reverse", [False, True], ids=["normal", "reversed"])
-@pytest.mark.parametrize("field", ["type", "has_object.type"])
+@pytest.mark.parametrize("field", ["type", "object.type"])
 @pytest.mark.asyncio
 async def test_sort_with_one_of_the_selected_fields(
     joint_fixture: JointFixture, reverse: bool, field: str
@@ -267,7 +267,7 @@ async def test_sort_with_one_of_the_selected_fields(
 
 
 @pytest.mark.parametrize("reverse", [False, True], ids=["normal", "reversed"])
-@pytest.mark.parametrize("field", ["category", "field1"])
+@pytest.mark.parametrize("field", ["category", "city"])
 @pytest.mark.asyncio
 async def test_sort_with_one_of_the_unselected_fields(
     joint_fixture: JointFixture, reverse: bool, field: str

@@ -52,7 +52,7 @@ async def test_filters_work(joint_fixture: JointFixture):
     results_filtered = await joint_fixture.query_handler.handle_query(
         class_name=CLASS_NAME,
         query="",
-        filters=[models.Filter(key="field1", value="Amsterdam")],
+        filters=[models.Filter(key="city", value="Amsterdam")],
     )
 
     assert results_filtered.count == 1
@@ -63,7 +63,7 @@ async def test_filters_work(joint_fixture: JointFixture):
         query="",
         filters=[
             models.Filter(key="category", value="hotel"),
-            models.Filter(key="has_object.type", value="piano"),
+            models.Filter(key="object.type", value="piano"),
         ],
     )
 
@@ -92,7 +92,7 @@ async def test_facets_returned(joint_fixture: JointFixture):
             hotel_options = [x for x in facet.options if x.value == "hotel"]
             assert len(hotel_options) == 1
             assert hotel_options[0].count == 2
-        elif facet.key == "field1":
+        elif facet.key == "city":
             miami_options = [x for x in facet.options if x.value == "Miami"]
             assert len(miami_options) == 1
             assert miami_options[0].count == 1
@@ -151,8 +151,8 @@ async def test_resource_load(joint_fixture: JointFixture):
     )
 
     content: dict = {
-        "has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
-        "field1": "something",
+        "object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
+        "city": "something",
         "category": "test object",
     }
 
@@ -182,9 +182,9 @@ async def test_resource_load(joint_fixture: JointFixture):
 
     # remove unselected fields
     content = resource.content  # type: ignore
-    del content["field1"]
+    del content["city"]
     del content["category"]
-    del content["has_object"]["id"]
+    del content["object"]["id"]
 
     assert validated_resource.content == content
 
@@ -195,8 +195,8 @@ async def test_loading_non_configured_resource(joint_fixture: JointFixture):
     resource = models.Resource(
         id_="added-resource",
         content={
-            "has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
-            "field1": "something",
+            "object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
+            "city": "something",
             "category": "test object",
         },
     )
@@ -213,8 +213,8 @@ async def test_error_from_malformed_resource(joint_fixture: JointFixture):
     resource = models.Resource(
         id_="added-resource",
         content={
-            "has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
-            "field3": "something",  # expects field1 to exist
+            "object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
+            "field3": "something",  # expects city to exist
             "category": "test object",
         },
     )

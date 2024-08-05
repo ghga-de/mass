@@ -82,8 +82,8 @@ async def test_malformed_document(
     resource = models.Resource(
         id_="added-resource",
         content={
-            "has_object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
-            "field1": 42,  # expected to be a string
+            "object": {"type": "added-resource-object", "id": "98u44-f4jo4"},
+            "city": 42,  # expected to be a string
             "category": "test object",
         },
     )
@@ -125,7 +125,7 @@ async def test_search_with_limit(joint_fixture: JointFixture):
         "id_": "1HotelAlpha-id",
         "content": {
             "type": "resort",
-            "has_object": {"type": "piano"},
+            "object": {"type": "piano"},
         },
     }
     hits = [models.Resource(**hit)]  # type: ignore[arg-type]
@@ -144,7 +144,7 @@ async def test_search_filters(joint_fixture: JointFixture):
     """Make sure filters work"""
     params: QueryParams = {
         "class_name": CLASS_NAME,
-        "filter_by": ["has_object.type"],
+        "filter_by": ["object.type"],
         "value": ["piano"],
     }
 
