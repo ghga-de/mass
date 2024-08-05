@@ -45,18 +45,37 @@ def args_for_getfield(*, root_object_name: str, field_name: str) -> tuple[str, s
         specified_field = pieces[-1]
         prefix += "." + ".".join(pieces[:-1])
 
-    return (prefix, specified_field)
+    return prefix, specified_field
 
 
 def pipeline_match_filters_stage(*, filters: list[models.Filter]) -> JsonObject:
     """Build segment of pipeline to apply search filters"""
-    segment: dict[str, dict[str, list[str]]] = defaultdict(lambda: {"$in": []})
+    filter_values = defaultdict(list)
     for item in filters:
-        filter_key = "content." + str(item.key)
-        filter_value = item.value
-        segment[filter_key]["$in"].append(filter_value)
-
-    return {"$match": segment}
+        filter_values[item.key].append(item.value)
+    segment = []
+    for key, values in filter_values.items():
+        if key != "id_":
+            key = "content." + key
+        segment.append(
+            {
+                "$or": [
+                    {
+                        "$and": [
+                            {key: {"$type": "string"}},
+                            {key: {"$in": values}},
+                        ]
+                    },
+                    {
+                        "$and": [
+                            {key: {"$type": "array"}},
+                            {key: {"$elemMatch": {"$in": values}}},
+                        ]
+                    },
+                ]
+            }
+        )
+    return {"$match": {"$and": segment}}
 
 
 def pipeline_facet_sort_and_paginate(
@@ -74,8 +93,16 @@ def pipeline_facet_sort_and_paginate(
         prefix, specified_field = args_for_getfield(
             root_object_name="content", field_name=facet.key
         )
-
-        segment[facet.name] = [
+        name = facet.name
+        if not name:
+            name = facet.key.capitalize()
+        segment[name] = [
+            {
+                "$unwind": {
+                    "path": f"{prefix}.{specified_field}",
+                    "preserveNullAndEmptyArrays": True,
+                }
+            },
             {
                 "$group": {
                     "_id": {"$getField": {"field": specified_field, "input": prefix}},
@@ -116,8 +143,14 @@ def pipeline_project(*, facet_fields: list[models.FieldLabel]) -> JsonObject:
 
     # add a segment for each facet to summarize the options
     for facet in facet_fields:
+        key = facet.key
+        name = facet.name or key.capitalize()
         segment["facets"].append(
-            {"key": facet.key, "name": facet.name, "options": f"${facet.name}"}
+            {
+                "key": key,
+                "name": name,
+                "options": f"${name}",
+            }
         )
     return {"$project": segment}
 
