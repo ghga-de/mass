@@ -62,7 +62,7 @@ def pipeline_match_filters_stage(*, filters: list[models.Filter]) -> JsonObject:
                 "$or": [
                     {
                         "$and": [
-                            {key: {"$type": "string"}},
+                            {key: {"$not": {"$type": "array"}}},
                             {key: {"$in": values}},
                         ]
                     },
