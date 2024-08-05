@@ -24,11 +24,14 @@ from tests.fixtures.joint import JointFixture
 pytestmark = pytest.mark.asyncio()
 
 
+CLASS_NAME = "NestedData"
+
+
 async def test_basic_query(joint_fixture: JointFixture):
     """Make sure we can pull back the documents as expected"""
     # pull back all 3 test documents
     results = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[]
+        class_name=CLASS_NAME, query="", filters=[]
     )
 
     assert results.count == 3
@@ -37,7 +40,7 @@ async def test_basic_query(joint_fixture: JointFixture):
 async def test_text_search(joint_fixture: JointFixture):
     """Test basic text search"""
     results_text = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="poolside", filters=[]
+        class_name=CLASS_NAME, query="poolside", filters=[]
     )
 
     assert results_text.count == 1
@@ -47,7 +50,7 @@ async def test_text_search(joint_fixture: JointFixture):
 async def test_filters_work(joint_fixture: JointFixture):
     """Test a query with filters selected but no query string"""
     results_filtered = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded",
+        class_name=CLASS_NAME,
         query="",
         filters=[models.Filter(key="field1", value="Amsterdam")],
     )
@@ -56,7 +59,7 @@ async def test_filters_work(joint_fixture: JointFixture):
     assert results_filtered.hits[0].id_ == "3zoo-id"
 
     results_multi_filter = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded",
+        class_name=CLASS_NAME,
         query="",
         filters=[
             models.Filter(key="category", value="hotel"),
@@ -71,14 +74,14 @@ async def test_filters_work(joint_fixture: JointFixture):
 async def test_facets_returned(joint_fixture: JointFixture):
     """Verify that facet fields are returned correctly"""
     results_faceted = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded",
+        class_name=CLASS_NAME,
         query="",
         filters=[models.Filter(key="category", value="hotel")],
     )
 
     config = get_config()
     facets: list[models.FieldLabel] = config.searchable_classes[
-        "DatasetEmbedded"
+        "NestedData"
     ].facetable_fields
     facet_key_to_name = {x.key: x.name for x in facets}
 
@@ -112,7 +115,7 @@ async def test_facets_returned(joint_fixture: JointFixture):
 async def test_limit_parameter(joint_fixture: JointFixture):
     """Test that the limit parameter works"""
     results_limited = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[], limit=2
+        class_name=CLASS_NAME, query="", filters=[], limit=2
     )
     assert len(results_limited.hits) == 2
 
@@ -120,7 +123,7 @@ async def test_limit_parameter(joint_fixture: JointFixture):
 async def test_skip_parameter(joint_fixture: JointFixture):
     """Test that the skip parameter works"""
     results_skip = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[], skip=1
+        class_name=CLASS_NAME, query="", filters=[], skip=1
     )
     assert len(results_skip.hits) == 2
     assert [x.id_ for x in results_skip.hits] == ["2HotelBeta-id", "3zoo-id"]
@@ -129,7 +132,7 @@ async def test_skip_parameter(joint_fixture: JointFixture):
 async def test_all_parameters(joint_fixture: JointFixture):
     """Sanity check - make sure it all works together"""
     results_all = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded",
+        class_name=CLASS_NAME,
         query="hotel",
         filters=[models.Filter(key="category", value="hotel")],
         skip=1,
@@ -144,7 +147,7 @@ async def test_resource_load(joint_fixture: JointFixture):
     """Test the load function in the query handler"""
     # get all the documents in the collection
     results_all = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[]
+        class_name=CLASS_NAME, query="", filters=[]
     )
 
     content: dict = {
@@ -157,17 +160,17 @@ async def test_resource_load(joint_fixture: JointFixture):
     resource = models.Resource(id_="added-resource", content=content)
 
     await joint_fixture.query_handler.load_resource(
-        resource=resource, class_name="DatasetEmbedded"
+        resource=resource, class_name=CLASS_NAME
     )
 
     # make sure the new resource is added to the collection
     results_after_load = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[]
+        class_name=CLASS_NAME, query="", filters=[]
     )
     assert results_after_load.count - results_all.count == 1
 
     target_search = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded",
+        class_name=CLASS_NAME,
         query="added-resource",
         filters=[],
         skip=0,
@@ -217,12 +220,12 @@ async def test_error_from_malformed_resource(joint_fixture: JointFixture):
     )
 
     await joint_fixture.query_handler.load_resource(
-        resource=resource, class_name="DatasetEmbedded"
+        resource=resource, class_name=CLASS_NAME
     )
 
     with pytest.raises(joint_fixture.query_handler.ValidationError):
         await joint_fixture.query_handler.handle_query(
-            class_name="DatasetEmbedded", query="", filters=[]
+            class_name=CLASS_NAME, query="", filters=[]
         )
 
 
@@ -240,17 +243,17 @@ async def test_resource_deletion(joint_fixture: JointFixture):
     Verify that the targeted resource is deleted and nothing else.
     """
     all_resources = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[]
+        class_name=CLASS_NAME, query="", filters=[]
     )
 
     assert all_resources.count > 1
     await joint_fixture.query_handler.delete_resource(
-        resource_id="1HotelAlpha-id", class_name="DatasetEmbedded"
+        resource_id="1HotelAlpha-id", class_name=CLASS_NAME
     )
 
     # see if deletion occurred, and make sure only one item was deleted
     results_after_deletion = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[]
+        class_name=CLASS_NAME, query="", filters=[]
     )
     assert all_resources.count - results_after_deletion.count == 1
 
@@ -262,7 +265,7 @@ async def test_resource_deletion(joint_fixture: JointFixture):
 async def test_resource_deletion_failure(joint_fixture: JointFixture):
     """Test for correct error when failing to delete a resource"""
     all_resources = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[]
+        class_name=CLASS_NAME, query="", filters=[]
     )
 
     assert all_resources.count > 0
@@ -270,12 +273,12 @@ async def test_resource_deletion_failure(joint_fixture: JointFixture):
     # try to delete a resource that doesn't exist
     with pytest.raises(joint_fixture.query_handler.ResourceNotFoundError):
         await joint_fixture.query_handler.delete_resource(
-            resource_id="not-here", class_name="DatasetEmbedded"
+            resource_id="not-here", class_name=CLASS_NAME
         )
 
     # verify that nothing was actually deleted
     all_resources_again = await joint_fixture.query_handler.handle_query(
-        class_name="DatasetEmbedded", query="", filters=[]
+        class_name=CLASS_NAME, query="", filters=[]
     )
 
     assert all_resources_again.count == all_resources.count

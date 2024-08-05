@@ -249,7 +249,7 @@ async def test_sort_with_one_of_the_selected_fields(
     joint_fixture: JointFixture, reverse: bool, field: str
 ):
     """Test sorting when fields are selected and one of them is used for sorting."""
-    class_name = "DatasetEmbedded"
+    class_name = "NestedData"
     selected = joint_fixture.config.searchable_classes[class_name].selected_fields
     assert selected  # this resource has selected fields
     assert any(f.key == field for f in selected)  # field is selected
@@ -273,7 +273,7 @@ async def test_sort_with_one_of_the_unselected_fields(
     joint_fixture: JointFixture, reverse: bool, field: str
 ):
     """Test sorting when fields are selected but sorted by an unselected field."""
-    class_name = "DatasetEmbedded"
+    class_name = "NestedData"
     selected = joint_fixture.config.searchable_classes[class_name].selected_fields
     assert selected  # this resource has selected fields
     assert not any(f.key == field for f in selected)  # field is unselected
