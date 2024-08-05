@@ -317,11 +317,11 @@ The service requires the following configuration parameters:
 
   - **`description`** *(string, required)*: A brief description of the resource type.
 
-  - **`facetable_fields`** *(array)*: A list of the facetable fields for the resource type (leave empty to not use faceting). Default: `[]`.
+  - **`facetable_fields`** *(array)*: A list of the facetable fields for the resource type (leave empty to not use faceting, use dotted notation for nested fields). Default: `[]`.
 
     - **Items**: Refer to *[#/$defs/FieldLabel](#%24defs/FieldLabel)*.
 
-  - **`selected_fields`** *(array)*: A list of the returned fields for the resource type (leave empty to return all). Default: `[]`.
+  - **`selected_fields`** *(array)*: A list of the returned fields for the resource type (leave empty to return all, use dotted notation for nested fields). Default: `[]`.
 
     - **Items**: Refer to *[#/$defs/FieldLabel](#%24defs/FieldLabel)*.
 
