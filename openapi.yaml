@@ -177,6 +177,7 @@ components:
 info:
   contact:
     email: contact@ghga.de
+    name: German Human Genome Phenome Archive (GHGA)
   license:
     name: Apache 2.0
   summary: A service for searching metadata artifacts and filtering results.
