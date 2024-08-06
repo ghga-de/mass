@@ -104,6 +104,12 @@ def pipeline_facet_sort_and_paginate(
         segment[name] = [
             {
                 "$unwind": {
+                    "path": prefix,
+                    "preserveNullAndEmptyArrays": True,
+                }
+            },
+            {
+                "$unwind": {
                     "path": f"{prefix}.{specified_field}",
                     "preserveNullAndEmptyArrays": True,
                 }
