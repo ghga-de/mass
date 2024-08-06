@@ -37,6 +37,7 @@ async def test_facets(joint_fixture: JointFixture):
     assert facet.name == "Species"
     options = {option.value: option.count for option in facet.options}
     assert options == {"cat": 1, "dog": 2, "dolphin": 1, "monkey": 1}
+    assert list(options) == sorted(options)
 
     facet = facets[1]
     assert facet.key == "eats"
@@ -52,6 +53,7 @@ async def test_facets(joint_fixture: JointFixture):
         "spaghetti": 2,
         "treats": 2,
     }
+    assert list(options) == sorted(options)
 
 
 @pytest.mark.parametrize(

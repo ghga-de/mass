@@ -32,7 +32,7 @@ SORT_ORDER_CONVERSION: JsonObject = {
 
 def name_from_key(key: str) -> str:
     """Auto generate a suitable name from a key"""
-    return key.title().replace("_", " ")
+    return key.title().replace("_", " ").replace(".", " ")
 
 
 def pipeline_match_text_search(*, query: str) -> JsonObject:
@@ -116,6 +116,7 @@ def pipeline_facet_sort_and_paginate(
             },
             {"$addFields": {"value": "$_id"}},  # rename "_id" to "value" on each option
             {"$unset": "_id"},
+            {"$sort": {"value": 1}},
         ]
 
     # this is the total number of hits, but pagination can mean only a few are returned
