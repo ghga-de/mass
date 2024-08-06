@@ -30,6 +30,11 @@ SORT_ORDER_CONVERSION: JsonObject = {
 }
 
 
+def name_from_key(key: str) -> str:
+    """Auto generate a suitable name from a key"""
+    return key.title().replace("_", " ")
+
+
 def pipeline_match_text_search(*, query: str) -> JsonObject:
     """Build text search segment of aggregation pipeline"""
     text_search = {"$text": {"$search": query}}
@@ -95,7 +100,7 @@ def pipeline_facet_sort_and_paginate(
         )
         name = facet.name
         if not name:
-            name = facet.key.capitalize()
+            name = name_from_key(facet.key)
         segment[name] = [
             {
                 "$unwind": {
@@ -144,7 +149,9 @@ def pipeline_project(*, facet_fields: list[models.FieldLabel]) -> JsonObject:
     # add a segment for each facet to summarize the options
     for facet in facet_fields:
         key = facet.key
-        name = facet.name or key.capitalize()
+        name = facet.name
+        if not name:
+            name = name_from_key(key)
         segment["facets"].append(
             {
                 "key": key,
