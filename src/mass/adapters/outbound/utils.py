@@ -186,12 +186,21 @@ def build_pipeline(  # noqa: PLR0913
         pipeline.append(pipeline_match_filters_stage(filters=filters))
 
     # turn the selected fields into a formatted pipeline $project
-    project: dict[str, int] = dict.fromkeys(
-        [
-            field.key if field.key == "id_" else f"content.{field.key}"
-            for field in selected_fields
-        ],
-        1,
+
+    project: dict[str, int] | None = (
+        dict.fromkeys(
+            (
+                "id_",
+                *(
+                    f"content.{field.key}"
+                    for field in selected_fields
+                    if field.key != "id_"
+                ),
+            ),
+            1,
+        )
+        if selected_fields
+        else None
     )
 
     # turn the sorting parameters into a formatted pipeline $sort
