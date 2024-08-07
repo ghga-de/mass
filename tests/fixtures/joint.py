@@ -43,12 +43,14 @@ QueryParams: TypeAlias = Mapping[str, int | str | list[str]]
 class State:
     """The current state of the database and the event topics"""
 
+    # the database is considered dirty if it is not (yet) populated properly
     database_dirty: bool
+    # the events are considered dirty if some have been published already
     events_dirty: bool
     resources: dict[str, list[models.Resource]]
 
 
-state = State(database_dirty=False, events_dirty=False, resources={})
+state = State(database_dirty=True, events_dirty=False, resources={})
 
 
 @dataclass
