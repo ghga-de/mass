@@ -47,7 +47,7 @@ class QueryHandler(QueryHandlerPort):
 
     async def load_resource(  # noqa: D102
         self, *, resource: models.Resource, class_name: str
-    ):
+    ) -> None:
         if class_name not in self._config.searchable_classes:
             raise self.ClassNotConfiguredError(class_name=class_name)
 
@@ -57,7 +57,7 @@ class QueryHandler(QueryHandlerPort):
 
         await dao.upsert(resource)
 
-    async def delete_resource(self, *, resource_id: str, class_name: str):  # noqa: D102
+    async def delete_resource(self, *, resource_id: str, class_name: str) -> None:  # noqa: D102
         if class_name not in self._config.searchable_classes:
             raise self.ClassNotConfiguredError(class_name=class_name)
 
