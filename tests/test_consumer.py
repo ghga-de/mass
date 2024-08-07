@@ -61,7 +61,7 @@ async def test_resource_upsert(
     ).model_dump()
 
     # publish the event
-    await joint_fixture.kafka.publish_event(
+    await joint_fixture.publish_event(
         payload=payload,
         type_=joint_fixture.config.resource_upsertion_event_type,
         topic=joint_fixture.config.resource_change_event_topic,
@@ -105,7 +105,7 @@ async def test_resource_delete(joint_fixture: JointFixture):
         accession="1HotelAlpha-id", class_name=CLASS_NAME
     )
 
-    await joint_fixture.kafka.publish_event(
+    await joint_fixture.publish_event(
         payload=resource_info.model_dump(),
         type_=joint_fixture.config.resource_deletion_event_type,
         topic=joint_fixture.config.resource_change_event_topic,

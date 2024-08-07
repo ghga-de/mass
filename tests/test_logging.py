@@ -124,7 +124,7 @@ async def test_event_sub_logging(
         else joint_fixture.config.resource_deletion_event_type
     )
 
-    await joint_fixture.kafka.publish_event(
+    await joint_fixture.publish_event(
         payload=resource.model_dump(),
         type_=event_to_use,
         topic=joint_fixture.config.resource_change_event_topic,

@@ -24,6 +24,7 @@ from typing import TypeAlias
 
 import pytest_asyncio
 from ghga_service_commons.api.testing import AsyncTestClient
+from hexkit.custom_types import Ascii, JsonObject
 from hexkit.providers.akafka import KafkaEventSubscriber
 from hexkit.providers.akafka.testutils import KafkaFixture
 from hexkit.providers.mongodb.testutils import MongoDbFixture
@@ -47,7 +48,7 @@ class State:
     resources: dict[str, list[models.Resource]]
 
 
-state = State(database_dirty=True, events_dirty=True, resources={})
+state = State(database_dirty=False, events_dirty=False, resources={})
 
 
 @dataclass
@@ -104,16 +105,25 @@ class JointFixture:
         return models.QueryResults(**result)
 
     async def delete_resource(self, resource_id: str, class_name: str) -> None:
-        """Delete a resource and mark the database as dirty."""
+        """Delete a resource and mark the database state as dirty."""
         await self.query_handler.delete_resource(
             resource_id=resource_id, class_name=class_name
         )
         state.database_dirty = True
 
     async def load_resource(self, resource: models.Resource, class_name: str) -> None:
-        """Load a resource and mark the database as dirty."""
+        """Load a resource and mark the database state as dirty."""
         await self.query_handler.load_resource(resource=resource, class_name=class_name)
         state.database_dirty = True
+
+    async def publish_event(
+        self, payload: JsonObject, type_: Ascii, topic: Ascii, key: Ascii = "test"
+    ) -> None:
+        """Publish a test event and mark the events state as dirty."""
+        await self.kafka.publish_event(
+            payload=payload, type_=type_, topic=topic, key=key
+        )
+        state.events_dirty = True
 
 
 @pytest_asyncio.fixture()
