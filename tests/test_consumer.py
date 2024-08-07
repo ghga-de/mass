@@ -38,7 +38,7 @@ async def test_resource_upsert(
 ):
     """Try upserting with no pre-existing resource with matching ID (i.e. insert)"""
     # get all the documents in the collection
-    results_all = await joint_fixture.query_handler.handle_query(
+    results_all = await joint_fixture.handle_query(
         class_name=CLASS_NAME, query="", filters=[]
     )
     assert results_all.count > 0
@@ -69,10 +69,10 @@ async def test_resource_upsert(
     )
 
     # consume the event
-    await joint_fixture.event_subscriber.run(forever=False)
+    await joint_fixture.consume_event()
 
     # verify that the resource was added
-    updated_resources = await joint_fixture.query_handler.handle_query(
+    updated_resources = await joint_fixture.handle_query(
         class_name=CLASS_NAME, query="", filters=[]
     )
     if is_insert:
@@ -93,7 +93,7 @@ async def test_resource_upsert(
 async def test_resource_delete(joint_fixture: JointFixture):
     """Test resource deletion via event consumption"""
     # get all the documents in the collection
-    targeted_initial_results = await joint_fixture.query_handler.handle_query(
+    targeted_initial_results = await joint_fixture.handle_query(
         class_name=CLASS_NAME,
         query='"1HotelAlpha-id"',
         filters=[],
@@ -113,10 +113,10 @@ async def test_resource_delete(joint_fixture: JointFixture):
     )
 
     # consume the event
-    await joint_fixture.event_subscriber.run(forever=False)
+    await joint_fixture.consume_event()
 
     # get all the documents in the collection
-    results_post_delete = await joint_fixture.query_handler.handle_query(
+    results_post_delete = await joint_fixture.handle_query(
         class_name=CLASS_NAME, query='"1HotelAlpha-id"', filters=[]
     )
 

@@ -110,7 +110,7 @@ async def test_event_sub_logging(
     Constants are defined above in an effort to keep code redundancy down.
     """
     # get all the documents in the collection
-    all_results = await joint_fixture.query_handler.handle_query(
+    all_results = await joint_fixture.handle_query(
         class_name="NestedData",
         query="",
         filters=[],
@@ -135,7 +135,7 @@ async def test_event_sub_logging(
     caplog.clear()
 
     # consume the event
-    await joint_fixture.event_subscriber.run(forever=False)
+    await joint_fixture.consume_event()
 
     # examine logs and try to be specific by filtering by logger name
     logs_of_interest = [
