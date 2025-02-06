@@ -1,12 +1,12 @@
 [project]
 name = "mass"
-version = "3.0.4"
+version = "4.0.0"
 description = "Metadata Artifact Search Service - A service for searching metadata artifacts and filtering results."
 dependencies = [
     "typer>=0.12",
-    "ghga-service-commons[api]>=3.1.5",
+    "ghga-service-commons[api]>=3.3.0",
     "ghga-event-schemas>=3.1.1",
-    "hexkit[mongodb,akafka]>=3.5.0",
+    "hexkit[mongodb,akafka]>=4.0.0",
 ]
 
 [project.urls]
