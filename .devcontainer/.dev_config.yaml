@@ -1,4 +1,4 @@
-db_connection_str: mongodb://localhost:27017
+mongo_dsn: mongodb://localhost:27017
 db_name: metadata-store
 searchable_classes:
   Dataset:
