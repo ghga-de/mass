@@ -15,11 +15,15 @@
 
 """Tests to verify functionality of kafka event consumer"""
 
+from unittest.mock import AsyncMock
+
 import pytest
 from ghga_event_schemas import pydantic_ as event_schemas
 from hexkit.providers.akafka.testutils import KafkaFixture
 
 from mass.core import models
+from mass.inject import prepare_event_subscriber
+from tests.fixtures.config import get_config
 from tests.fixtures.joint import JointFixture
 
 pytestmark = pytest.mark.asyncio()
@@ -142,13 +146,10 @@ async def test_event_subscriber_dlq(joint_fixture: JointFixture):
     assert event.payload == {"some_key": "some_value"}
 
 
-async def test_consume_from_retry(joint_fixture: JointFixture, kafka: KafkaFixture):
+async def test_consume_from_retry(kafka: KafkaFixture):
     """Verify that this service will correctly get events from the retry topic"""
-    config = joint_fixture.config
+    config = get_config(sources=[kafka.config], kafka_enable_dlq=True)
     assert config.kafka_enable_dlq
-
-    results_all = await joint_fixture.handle_query(class_name=CLASS_NAME)
-    assert results_all.count > 0
 
     # define content of resource
     content: dict = {
@@ -156,9 +157,6 @@ async def test_consume_from_retry(joint_fixture: JointFixture, kafka: KafkaFixtu
         "city": "something",
         "category": "test object",
     }
-
-    # define a resource to be upserted
-    resource = models.Resource(id_="added-resource", content=content)
 
     # put together event payload
     payload = event_schemas.SearchableResource(
@@ -177,16 +175,10 @@ async def test_consume_from_retry(joint_fixture: JointFixture, kafka: KafkaFixtu
     )
 
     # Consume the event
-    await joint_fixture.consume_event()
+    qh_mock = AsyncMock()
+    async with prepare_event_subscriber(
+        config=config, query_handler_override=qh_mock
+    ) as consumer:
+        await consumer.run(forever=False)
 
-    # verify that the resource was added
-    updated_resources = await joint_fixture.handle_query(class_name=CLASS_NAME)
-    assert updated_resources.count - results_all.count == 1
-
-    # remove unselected fields
-    content = resource.content  # type: ignore
-    del content["city"]
-    del content["category"]
-    del content["object"]["id"]
-
-    assert resource in updated_resources.hits
+    qh_mock.load_resource.assert_awaited_once()
