@@ -20,7 +20,6 @@ from ghga_event_schemas import pydantic_ as event_schemas
 from hexkit.providers.akafka.testutils import KafkaFixture
 
 from mass.core import models
-from mass.inject import prepare_event_subscriber
 from tests.fixtures.joint import JointFixture
 
 pytestmark = pytest.mark.asyncio()
@@ -159,11 +158,11 @@ async def test_consume_from_retry(joint_fixture: JointFixture, kafka: KafkaFixtu
     }
 
     # define a resource to be upserted
-    resource = models.Resource(id_="1HotelAlpha-id", content=content)
+    resource = models.Resource(id_="added-resource", content=content)
 
     # put together event payload
     payload = event_schemas.SearchableResource(
-        accession="1HotelAlpha-id",
+        accession="added-resource",
         class_name=CLASS_NAME,
         content=content,
     ).model_dump()
@@ -178,12 +177,11 @@ async def test_consume_from_retry(joint_fixture: JointFixture, kafka: KafkaFixtu
     )
 
     # Consume the event
-    async with prepare_event_subscriber(config=config) as event_subscriber:
-        await event_subscriber.run(forever=False)
+    await joint_fixture.consume_event()
 
     # verify that the resource was added
     updated_resources = await joint_fixture.handle_query(class_name=CLASS_NAME)
-    assert updated_resources.count == results_all.count
+    assert updated_resources.count - results_all.count == 1
 
     # remove unselected fields
     content = resource.content  # type: ignore
