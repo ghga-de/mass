@@ -20,7 +20,7 @@ FROM python:3.12-alpine AS base
 RUN apk upgrade --no-cache --available
 
 # BUILDER: a container to build the service wheel
-FROM base as builder
+FROM base AS builder
 RUN pip install build
 COPY . /service
 WORKDIR /service
@@ -36,7 +36,7 @@ COPY --from=builder /service/lock/requirements.txt /service
 RUN pip install --no-deps -r requirements.txt
 
 # RUNNER: a container to run the service
-FROM base as runner
+FROM base AS runner
 WORKDIR /service
 RUN rm -rf /usr/local/lib/python3.12 && mkdir /usr/local/lib/python3.12
 COPY --from=dep-builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
