@@ -18,6 +18,7 @@
 from ghga_service_commons.api import ApiConfigBase
 from hexkit.config import config_from_yaml
 from hexkit.log import LoggingConfig
+from hexkit.opentelemetry import OpenTelemetryConfig
 from hexkit.providers.akafka import KafkaConfig
 from hexkit.providers.mongodb.provider import MongoDbConfig
 from pydantic import Field
@@ -44,6 +45,7 @@ class Config(
     EventSubTranslatorConfig,
     SearchableClassesConfig,
     LoggingConfig,
+    OpenTelemetryConfig,
 ):
     """Config parameters and their defaults."""
 

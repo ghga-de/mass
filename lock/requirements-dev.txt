@@ -7,12 +7,21 @@ anyio==4.9.0
     #   httpx
     #   starlette
     #   watchfiles
+asgiref==3.8.1
+    # via opentelemetry-instrumentation-asgi
 async-timeout==5.0.1
     # via aiokafka
 attrs==25.3.0
     # via
     #   jsonschema
     #   referencing
+boto3==1.38.34
+    # via hexkit
+botocore==1.38.34
+    # via
+    #   boto3
+    #   hexkit
+    #   s3transfer
 casefy==1.1.0
     # via -r lock/requirements-dev-template.in
 certifi==2025.4.26
@@ -51,6 +60,12 @@ ghga-event-schemas==5.0.0
     # via mass (pyproject.toml)
 ghga-service-commons==4.1.0
     # via mass (pyproject.toml)
+googleapis-common-protos==1.70.0
+    # via
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+grpcio==1.73.0
+    # via opentelemetry-exporter-otlp-proto-grpc
 h11==0.16.0
     # via
     #   httpcore
@@ -80,6 +95,10 @@ importlib-metadata==8.7.0
     # via opentelemetry-api
 iniconfig==2.1.0
     # via pytest
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
 jsonschema==4.24.0
     # via
     #   ghga-event-schemas
@@ -107,10 +126,82 @@ mypy-extensions==1.1.0
 nodeenv==1.9.1
     # via pre-commit
 opentelemetry-api==1.34.1
+    # via
+    #   hexkit
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-aiokafka
+    #   opentelemetry-instrumentation-asgi
+    #   opentelemetry-instrumentation-botocore
+    #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-httpx
+    #   opentelemetry-instrumentation-pymongo
+    #   opentelemetry-propagator-aws-xray
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
+opentelemetry-exporter-otlp==1.34.1
     # via hexkit
+opentelemetry-exporter-otlp-proto-common==1.34.1
+    # via
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-exporter-otlp-proto-grpc==1.34.1
+    # via opentelemetry-exporter-otlp
+opentelemetry-exporter-otlp-proto-http==1.34.1
+    # via opentelemetry-exporter-otlp
+opentelemetry-instrumentation==0.55b1
+    # via
+    #   hexkit
+    #   opentelemetry-instrumentation-aiokafka
+    #   opentelemetry-instrumentation-asgi
+    #   opentelemetry-instrumentation-botocore
+    #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-httpx
+    #   opentelemetry-instrumentation-pymongo
+opentelemetry-instrumentation-aiokafka==0.55b1
+    # via hexkit
+opentelemetry-instrumentation-asgi==0.55b1
+    # via opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-botocore==0.55b1
+    # via hexkit
+opentelemetry-instrumentation-fastapi==0.55b1
+    # via hexkit
+opentelemetry-instrumentation-httpx==0.55b1
+    # via hexkit
+opentelemetry-instrumentation-pymongo==0.55b1
+    # via hexkit
+opentelemetry-propagator-aws-xray==1.0.2
+    # via opentelemetry-instrumentation-botocore
+opentelemetry-proto==1.34.1
+    # via
+    #   opentelemetry-exporter-otlp-proto-common
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-sdk==1.34.1
+    # via
+    #   hexkit
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-semantic-conventions==0.55b1
+    # via
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-aiokafka
+    #   opentelemetry-instrumentation-asgi
+    #   opentelemetry-instrumentation-botocore
+    #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-httpx
+    #   opentelemetry-instrumentation-pymongo
+    #   opentelemetry-sdk
+opentelemetry-util-http==0.55b1
+    # via
+    #   opentelemetry-instrumentation-asgi
+    #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-httpx
 packaging==25.0
     # via
     #   aiokafka
+    #   opentelemetry-instrumentation
     #   pytest
 pathspec==0.12.1
     # via mypy
@@ -120,6 +211,10 @@ pluggy==1.6.0
     # via pytest
 pre-commit==4.2.0
     # via -r lock/requirements-dev-template.in
+protobuf==5.29.5
+    # via
+    #   googleapis-common-protos
+    #   opentelemetry-proto
 pydantic==2.11.5
     # via
     #   fastapi
@@ -151,6 +246,8 @@ pytest-cov==6.1.1
     # via -r lock/requirements-dev-template.in
 pytest-httpx==0.35.0
     # via -r lock/requirements-dev-template.in
+python-dateutil==2.9.0.post0
+    # via botocore
 python-dotenv==1.1.0
     # via
     #   pydantic-settings
@@ -170,6 +267,7 @@ requests==2.32.4
     # via
     #   -r lock/requirements-dev-template.in
     #   docker
+    #   opentelemetry-exporter-otlp-proto-http
 rich==14.0.0
     # via typer
 rpds-py==0.25.1
@@ -178,10 +276,14 @@ rpds-py==0.25.1
     #   referencing
 ruff==0.11.13
     # via -r lock/requirements-dev-template.in
+s3transfer==0.13.0
+    # via boto3
 setuptools==80.9.0
     # via -r lock/requirements-dev-template.in
 shellingham==1.5.4
     # via typer
+six==1.17.0
+    # via python-dateutil
 snakeviz==2.2.2
     # via -r lock/requirements-dev-template.in
 sniffio==1.3.1
@@ -205,6 +307,11 @@ typing-extensions==4.14.0
     #   fastapi
     #   mypy
     #   opentelemetry-api
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+    #   opentelemetry-instrumentation-aiokafka
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
     #   referencing
@@ -218,6 +325,7 @@ typing-inspection==0.4.1
 urllib3==2.4.0
     # via
     #   -r lock/requirements-dev-template.in
+    #   botocore
     #   docker
     #   requests
     #   testcontainers
@@ -234,6 +342,9 @@ watchfiles==1.0.5
 websockets==15.0.1
     # via uvicorn
 wrapt==1.17.2
-    # via testcontainers
+    # via
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-httpx
+    #   testcontainers
 zipp==3.23.0
     # via importlib-metadata

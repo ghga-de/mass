@@ -22,3 +22,5 @@ resource_upsertion_type: searchable_resource_upserted
 service_instance_id: "001"
 kafka_servers: ["kafka:9092"]
 kafka_enable_dlq: True
+
+otel_exporter_endpoint: http://localhost:4318
