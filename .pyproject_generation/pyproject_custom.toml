@@ -6,7 +6,7 @@ dependencies = [
     "typer>=0.15.2",
     "ghga-service-commons[api]>=4.0.0",
     "ghga-event-schemas>=5.0.0, <6",
-    "hexkit[mongodb,akafka]>=5.1",
+    "hexkit[mongodb,akafka]@git+https://github.com/ghga-de/hexkit@fix/otel_distro_issues",
 ]
 
 [project.urls]
