@@ -18,7 +18,7 @@ FROM python:3.12-slim-bookworm AS builder
 # update and install dependencies
 RUN apt update
 RUN apt upgrade -y
-RUN pip install build
+RUN pip install build git
 # copy code
 COPY . /service
 WORKDIR /service
