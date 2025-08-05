@@ -15,9 +15,11 @@
 #
 """Contains concrete implementation of the Aggregator and its Factory"""
 
+from contextlib import asynccontextmanager
+
 from hexkit.custom_types import JsonObject
-from hexkit.providers.mongodb.provider import MongoDbConfig
-from motor.motor_asyncio import AsyncIOMotorClient
+from hexkit.providers.mongodb.provider import ConfiguredMongoClient, MongoDbConfig
+from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import OperationFailure
 
 from mass.adapters.outbound import utils
@@ -92,13 +94,17 @@ class Aggregator(AggregatorPort):
 class AggregatorFactory:
     """Produces aggregators for a given resource class"""
 
-    def __init__(self, *, config: MongoDbConfig):
+    @asynccontextmanager
+    @classmethod
+    async def construct(cls, *, config: MongoDbConfig):
+        """Set up the factory"""
+        async with ConfiguredMongoClient(config=config) as client:
+            db = client[config.db_name]
+            yield cls(db=db)
+
+    def __init__(self, *, db: AsyncDatabase):
         """Initialize the factory with the DB config information"""
-        self._config = config
-        self._client: AsyncIOMotorClient = AsyncIOMotorClient(
-            str(self._config.mongo_dsn.get_secret_value())
-        )
-        self._db = self._client[self._config.db_name]
+        self._db = db
 
     def get_aggregator(self, *, name: str) -> Aggregator:
         """Returns an aggregator with a collection set up"""
