@@ -100,7 +100,7 @@ async def test_malformed_document(
             exc_info.value.response.json().get("detail")
             == "An error occurred during the search operation"
         )
-        assert len(caplog.records) == 1
+        assert len(caplog.records) == 2
         msg = caplog.records[0].message
         assert "Input should be a valid string" in msg
         assert "type=string_type, input_value=42, input_type=int" in msg
