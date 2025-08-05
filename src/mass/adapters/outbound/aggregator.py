@@ -19,6 +19,7 @@ from contextlib import asynccontextmanager
 
 from hexkit.custom_types import JsonObject
 from hexkit.providers.mongodb.provider import ConfiguredMongoClient, MongoDbConfig
+from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import OperationFailure
 
@@ -35,7 +36,7 @@ from mass.ports.outbound.aggregator import (
 class Aggregator(AggregatorPort):
     """Concrete implementation of an Aggregator"""
 
-    def __init__(self, *, collection):
+    def __init__(self, *, collection: AsyncCollection):
         """Initialize with a MongoDB collection"""
         self._collection = collection
 
@@ -66,9 +67,9 @@ class Aggregator(AggregatorPort):
         )
 
         try:
-            [results] = [
-                item async for item in self._collection.aggregate(pipeline=pipeline)
-            ]
+            cursor = await self._collection.aggregate(pipeline=pipeline)
+            [results] = await cursor.to_list()
+            return results
         except OperationFailure as err:
             filter_repr = [{f.key: f.value} for f in filters]
             facet_repr = [{f.key: f.name} for f in facet_fields]
@@ -88,14 +89,12 @@ class Aggregator(AggregatorPort):
                 missing_index=missing_index,
             ) from err
 
-        return results
-
 
 class AggregatorFactory:
     """Produces aggregators for a given resource class"""
 
-    @asynccontextmanager
     @classmethod
+    @asynccontextmanager
     async def construct(cls, *, config: MongoDbConfig):
         """Set up the factory"""
         async with ConfiguredMongoClient(config=config) as client:

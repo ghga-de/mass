@@ -20,7 +20,7 @@ import logging
 
 import httpx
 import pytest
-from pymongo import MongoClient
+from hexkit.providers.mongodb.provider import ConfiguredMongoClient
 
 from mass.core import models
 from tests.fixtures.config import get_config
@@ -171,14 +171,13 @@ async def test_auto_recreation_of_indexes(
 
     # drop all text indexes
     config = joint_fixture.config
-    client: MongoClient = MongoClient(str(config.mongo_dsn.get_secret_value()))
-    db = client[config.db_name]
-    for collection_name in db.list_collection_names():
-        collection = db[collection_name]
-        for index in collection.list_indexes():
-            if "text" in index["key"].values():
-                collection.drop_index(index["name"])
-    client.close()
+    with ConfiguredMongoClient(config=config) as client:
+        db = client[config.db_name]
+        for collection_name in db.list_collection_names():
+            collection = db[collection_name]
+            for index in collection.list_indexes():
+                if "text" in index["key"].values():
+                    collection.drop_index(index["name"])
 
     # should work, but give a warning when indexes are recreated
     with caplog.at_level(logging.WARNING):
