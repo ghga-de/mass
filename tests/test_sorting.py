@@ -83,7 +83,9 @@ def sorted_resources(  # noqa: C901
         return tuple(key)
 
     # sort the reversed resources to not rely on the already given order
-    return sorted(reversed(resources), key=sort_key)
+    # (the inner reversed() is intentional: sorted() is stable, so it makes ties
+    # surface instead of silently inheriting the input order)
+    return sorted(reversed(resources), key=sort_key)  # noqa: C414
 
 
 async def test_api_without_sort_parameters(joint_fixture: JointFixture):
