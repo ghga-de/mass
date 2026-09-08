@@ -1,6 +1,14 @@
 [![tests](https://github.com/ghga-de/mass/actions/workflows/tests.yaml/badge.svg)](https://github.com/ghga-de/mass/actions/workflows/tests.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/ghga-de/mass/badge.svg?branch=main)](https://coveralls.io/github/ghga-de/mass?branch=main)
 
+> [!IMPORTANT]
+> **This repository is deprecated and no longer maintained.**
+>
+> Development of the GHGA Mass service continues in the GHGA mono repository at [ghga-de/ghga](https://github.com/ghga-de/ghga), where the service now lives under [services/mass](https://github.com/ghga-de/ghga/tree/main/services/mass).
+> Please open issues and pull requests there.
+>
+> This repository is kept read-only for its history. The documentation below reflects the last state of the code before the move to the mono repository.
+
 # Mass
 
 Metadata Artifact Search Service - A service for searching metadata artifacts and filtering results.
